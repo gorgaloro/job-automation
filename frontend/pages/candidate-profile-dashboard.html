@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allen Walker - Candidate Profile Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 { font-size: 2.5em; font-weight: 300; margin-bottom: 10px; }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; margin-bottom: 20px; }
+        
+        .profile-actions { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-secondary { background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active { background: #3498db; color: white; }
+        .tab:hover:not(.active) { background: #ecf0f1; color: #2c3e50; }
+        
+        .tab-content { display: none; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+        
+        .section { margin-bottom: 40px; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; font-weight: 600; margin-bottom: 20px; }
+        
+        .profile-summary {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .edit-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+        }
+        
+        .contact-info { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+        .contact-item { display: flex; align-items: center; gap: 8px; color: #7f8c8d; }
+        
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        
+        .skill-category {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .skill-category h4 { color: #27ae60; font-weight: 600; margin-bottom: 10px; }
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .skill-tag { background: #27ae60; color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.85em; }
+        
+        .experience-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .experience-title { font-size: 1.2em; font-weight: 600; color: #2c3e50; margin-bottom: 5px; }
+        .experience-company { color: #e74c3c; font-weight: 500; margin-bottom: 10px; }
+        .experience-description { color: #7f8c8d; line-height: 1.6; }
+        
+        .preferences-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        
+        .preference-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .preference-section h4 { color: #9b59b6; font-weight: 600; margin-bottom: 15px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .form-input:focus { outline: none; border-color: #3498db; }
+        
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; }
+        
+        .save-changes {
+            background: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .export-section {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .export-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 25px;
+            border-radius: 25px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        
+        .status-active { background: #d5f4e6; color: #27ae60; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; }
+        .last-updated { color: #7f8c8d; font-size: 0.9em; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Allen Walker</h1>
+            <p class="subtitle">Senior Program Manager & Operations Strategist</p>
+            <div class="profile-actions">
+                <button class="btn btn-primary" onclick="launchAICoach()">🤖 Launch AI Career Coach</button>
+                <button class="btn btn-secondary" onclick="runJobSearch()">🔍 Run Job Search</button>
+                <button class="btn btn-secondary" onclick="exportProfile()">📄 Export Profile</button>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('who-i-am')">👤 Who I Am</button>
+            <button class="tab" onclick="showTab('what-im-looking-for')">🎯 What I'm Looking For</button>
+        </div>
+        
+        <!-- Tab Content: Who I Am -->
+        <div id="who-i-am" class="tab-content active">
+            <div class="section">
+                <h2>📋 Professional Summary</h2>
+                <div class="profile-summary">
+                    <button class="edit-btn" onclick="editSection('summary')" title="Edit Summary">✏️</button>
+                    <p id="summary-text">Senior program leader and operations strategist with 15+ years transforming industries including healthcare, construction, property management, pharma, and community development. I drive change through systems thinking, infrastructure buildout, IT delivery, and hands-on execution across complex projects.</p>
+                </div>
+                
+                <div class="contact-info">
+                    <div class="contact-item">📍 San Francisco, CA</div>
+                    <div class="contact-item">💼 linkedin.com/in/allenwalker</div>
+                    <div class="contact-item">📧 Available upon request</div>
+                    <div class="status-active">✅ Profile Active</div>
+                </div>
+            </div>
+            
+            <!-- Skills -->
+            <div class="section">
+                <h2>🎯 Skills & Expertise</h2>
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <h4>Business & Strategy</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Program Management</span>
+                            <span class="skill-tag">Revenue Operations</span>
+                            <span class="skill-tag">GTM Strategy</span>
+                            <span class="skill-tag">Change Management</span>
+                        </div>
+                    </div>
+                    <div class="skill-category">
+                        <h4>Technology & Systems</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Salesforce</span>
+                            <span class="skill-tag">HubSpot</span>
+                            <span class="skill-tag">Epic Systems</span>
+                            <span class="skill-tag">SQL</span>
+                        </div>
+                    </div>
+                    <div class="skill-category">
+                        <h4>Industries</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Healthcare</span>
+                            <span class="skill-tag">SaaS</span>
+                            <span class="skill-tag">AI/ML</span>
+                            <span class="skill-tag">Real Estate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Strategic Impact -->
+            <div class="section">
+                <h2>⭐ Strategic Impact</h2>
+                <div class="experience-item">
+                    <div class="experience-title">$6B Epic Program Leadership</div>
+                    <div class="experience-company">Healthcare System Implementation</div>
+                    <div class="experience-description">Directed a $6B Epic program for 35,000+ users—drove timelines, delivered change, and met go-live with zero critical errors.</div>
+                </div>
+                <div class="experience-item">
+                    <div class="experience-title">IT Portfolio Management</div>
+                    <div class="experience-company">Enterprise Technology Operations</div>
+                    <div class="experience-description">Managed an IT portfolio serving 100K+ users—led vendor management, contract execution, and SLA accountability.</div>
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <h3>🌐 Export for Website</h3>
+                <p>Export this profile section for your website's "About Me" page</p>
+                <button class="export-btn" onclick="exportAboutMe()">Export About Me HTML</button>
+                <button class="export-btn" onclick="exportResumePDF()">Export Resume PDF</button>
+            </div>
+        </div>
+        
+        <!-- Tab Content: What I'm Looking For -->
+        <div id="what-im-looking-for" class="tab-content">
+            <div class="section">
+                <h2>🎯 Job Search Preferences</h2>
+                
+                <div class="preferences-grid">
+                    <div class="preference-section">
+                        <h4>Target Job Titles</h4>
+                        <div class="form-group">
+                            <label class="form-label">Primary Titles</label>
+                            <textarea class="form-input" rows="4" id="target-titles">Senior Program Manager
+Revenue Operations Manager
+Customer Experience Manager
+Technical Project Manager</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-section">
+                        <h4>Compensation</h4>
+                        <div class="form-group">
+                            <label class="form-label">Salary Range</label>
+                            <select class="form-select" id="salary-range">
+                                <option value="150k-200k" selected>$150K - $200K</option>
+                                <option value="200k-250k">$200K - $250K</option>
+                                <option value="250k-300k">$250K - $300K</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Minimum Salary</label>
+                            <input type="number" class="form-input" id="min-salary" value="150000" step="5000">
+                        </div>
+                    </div>
+                    
+                    <div class="preference-section">
+                        <h4>Location & Work Style</h4>
+                        <div class="form-group">
+                            <label class="form-label">Preferred Locations</label>
+                            <textarea class="form-input" rows="3" id="locations">San Francisco, CA
+Bay Area, CA
+Remote</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Remote Preference</label>
+                            <select class="form-select" id="remote-pref">
+                                <option value="hybrid" selected>Hybrid</option>
+                                <option value="remote-only">Remote Only</option>
+                                <option value="onsite">On-site</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-section">
+                        <h4>Industry Preferences</h4>
+                        <div class="form-group">
+                            <label class="form-label">Preferred Industries</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="healthcare" checked>
+                                    <label for="healthcare">Healthcare</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="technology" checked>
+                                    <label for="technology">Technology</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="saas" checked>
+                                    <label for="saas">SaaS</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="fintech" checked>
+                                    <label for="fintech">Fintech</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="save-changes" onclick="savePreferences()">💾 Save Job Search Preferences</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="last-updated">
+            Last updated: <span id="last-updated-time">July 25, 2025 at 3:36 PM</span>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function editSection(section) {
+            if (section === 'summary') {
+                const textElement = document.getElementById('summary-text');
+                const currentText = textElement.textContent;
+                
+                const textarea = document.createElement('textarea');
+                textarea.className = 'form-input';
+                textarea.rows = 6;
+                textarea.value = currentText;
+                
+                const saveBtn = document.createElement('button');
+                saveBtn.textContent = 'Save';
+                saveBtn.className = 'btn btn-primary';
+                saveBtn.style.marginTop = '10px';
+                saveBtn.onclick = function() {
+                    textElement.textContent = textarea.value;
+                    textElement.parentNode.replaceChild(textElement, textarea);
+                    saveBtn.remove();
+                    updateLastModified();
+                };
+                
+                textElement.parentNode.replaceChild(textarea, textElement);
+                textarea.parentNode.appendChild(saveBtn);
+                textarea.focus();
+            }
+        }
+        
+        function launchAICoach() {
+            alert('🤖 Launching AI Career Coach...\n\nThis would open your AI career coaching session to:\n• Discuss career goals\n• Get job recommendations\n• Refine your professional brand\n• Update your profile\n\nResults automatically update this page.');
+        }
+        
+        function runJobSearch() {
+            alert('🔍 Running Targeted Job Search...\n\nUsing your preferences:\n• Target job titles\n• $150K-$250K salary\n• San Francisco/Remote\n• Healthcare/Tech industries\n\nLaunching job board API calls...');
+        }
+        
+        function savePreferences() {
+            alert('💾 Preferences Saved!\n\nYour job search criteria have been updated and will be used for future job board API calls.');
+            updateLastModified();
+        }
+        
+        function exportProfile() {
+            alert('📄 Exporting Profile...\n\nProfile data exported as JSON for API integration.');
+        }
+        
+        function exportAboutMe() {
+            alert('🌐 Exporting About Me HTML...\n\nProfile formatted for your website\'s About Me page.');
+        }
+        
+        function exportResumePDF() {
+            alert('📄 Exporting Resume PDF...\n\nFormatted resume ready for download.');
+        }
+        
+        function updateLastModified() {
+            document.getElementById('last-updated-time').textContent = new Date().toLocaleString();
+        }
+    </script>
+</body>
+</html>

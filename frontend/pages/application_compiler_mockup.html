@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Compiler - AI-Powered Job Application Builder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f8fafc; height: 100vh; overflow: hidden; }
+        .app-container { display: grid; grid-template-columns: 400px 1fr; height: 100vh; gap: 0; }
+        
+        /* Left Sidebar */
+        .job-analysis-panel { background: white; border-right: 1px solid #e2e8f0; overflow-y: auto; padding: 20px; }
+        .job-header { text-align: center; margin-bottom: 25px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; }
+        .job-title { font-size: 1.4em; font-weight: 600; margin-bottom: 5px; }
+        .company-name { font-size: 1.1em; opacity: 0.9; margin-bottom: 8px; }
+        .job-location { font-size: 0.9em; opacity: 0.8; }
+        
+        .analysis-section { margin-bottom: 20px; padding: 15px; background: #f7fafc; border-radius: 8px; border-left: 3px solid #667eea; }
+        .section-title { font-size: 1em; font-weight: 600; color: #2d3748; margin-bottom: 10px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .info-item { display: flex; flex-direction: column; gap: 2px; }
+        .info-label { font-size: 0.8em; color: #718096; font-weight: 500; }
+        .info-value { font-size: 0.9em; color: #2d3748; font-weight: 500; }
+        .score-badge { background: #48bb78; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9em; font-weight: 500; text-align: center; }
+        
+        .submission-requirements { margin-bottom: 20px; padding: 15px; background: #fff5f5; border-radius: 8px; border-left: 3px solid #f56565; }
+        .requirement-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #fed7d7; }
+        .requirement-item:last-child { border-bottom: none; }
+        .requirement-name { font-weight: 500; }
+        .requirement-status { padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: 500; }
+        .status-required { background: #feb2b2; color: #742a2a; }
+        .status-optional { background: #fbd38d; color: #744210; }
+        .status-recommended { background: #c6f6d5; color: #22543d; }
+        
+        /* Right Panel */
+        .compiler-panel { display: flex; flex-direction: column; background: white; overflow: hidden; }
+        .compiler-header { padding: 20px 20px 0 20px; border-bottom: 1px solid #e2e8f0; }
+        .compiler-title { font-size: 1.5em; font-weight: 600; color: #2d3748; margin-bottom: 10px; }
+        .compiler-subtitle { color: #718096; margin-bottom: 20px; }
+        
+        .tab-header { display: flex; background: #f7fafc; border-bottom: 1px solid #e2e8f0; padding: 0 20px; }
+        .tab-button { padding: 15px 25px; border: none; background: transparent; color: #718096; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; position: relative; }
+        .tab-button.active { color: #667eea; border-bottom-color: #667eea; background: white; }
+        .tab-button:hover:not(.active) { color: #4a5568; background: #edf2f7; }
+        .tab-indicator { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: #48bb78; display: none; }
+        .tab-button.completed .tab-indicator { display: block; }
+        
+        .tab-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .tab-pane { display: none; } .tab-pane.active { display: block; }
+        
+        /* Portfolio Styles */
+        .portfolio-summary { background: #f7fafc; padding: 20px; border-radius: 8px; border-left: 3px solid #667eea; margin-bottom: 25px; }
+        .portfolio-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .portfolio-stat { text-align: center; }
+        .portfolio-stat-value { font-size: 1.5em; font-weight: 600; color: #667eea; }
+        .portfolio-stat-label { font-size: 0.9em; color: #718096; }
+        
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .project-card { background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; transition: all 0.2s; }
+        .project-card:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+        .project-card.selected { border-color: #48bb78; box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.2); }
+        .project-header { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+        .project-title { font-size: 1.1em; font-weight: 600; color: #2d3748; margin-bottom: 8px; }
+        .project-type { font-size: 0.9em; color: #718096; margin-bottom: 12px; }
+        .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .project-tag { background: #edf2f7; color: #4a5568; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; }
+        .project-content { padding: 20px; }
+        .project-description { font-size: 0.9em; color: #4a5568; line-height: 1.5; margin-bottom: 15px; }
+        .project-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .project-metric { text-align: center; }
+        .project-metric-value { font-size: 1.2em; font-weight: 600; color: #667eea; }
+        .project-metric-label { font-size: 0.8em; color: #718096; }
+        .project-actions { display: flex; gap: 8px; align-items: center; }
+        .project-checkbox { margin-right: 10px; transform: scale(1.2); }
+        
+        /* Buttons */
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-size: 0.85em; }
+        .btn-primary { background: #667eea; color: white; } .btn-primary:hover { background: #5a67d8; }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; } .btn-secondary:hover { background: #cbd5e0; }
+        .btn-outline { background: transparent; color: #667eea; border: 1px solid #667eea; } .btn-outline:hover { background: #667eea; color: white; }
+        
+        .action-bar { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <div class="job-analysis-panel">
+            <div class="job-header">
+                <div class="job-title">Product Designer</div>
+                <div class="company-name">Coactive AI</div>
+                <div class="job-location">San Jose, CA (Hybrid)</div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="section-title">📊 Job Analysis</div>
+                <div class="info-grid">
+                    <div class="info-item"><div class="info-label">Match Score</div><div class="info-value">92%</div></div>
+                    <div class="info-item"><div class="info-label">Industry</div><div class="info-value">AI/ML Technology</div></div>
+                    <div class="info-item"><div class="info-label">Salary Range</div><div class="info-value">$199K - $220K</div></div>
+                    <div class="info-item"><div class="info-label">Experience</div><div class="info-value">8+ years</div></div>
+                </div>
+                <div class="score-badge">Strong Alignment</div>
+            </div>
+
+            <div class="submission-requirements">
+                <div class="section-title">📋 Submission Requirements</div>
+                <div class="requirement-item">
+                    <div class="requirement-name">Resume</div>
+                    <div class="requirement-status status-required">Required</div>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-name">Cover Letter</div>
+                    <div class="requirement-status status-recommended">Recommended</div>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-name">Portfolio</div>
+                    <div class="requirement-status status-optional">Optional</div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="section-title">🏢 Company Culture</div>
+                <div style="font-size: 0.9em; color: #4a5568; line-height: 1.5;">
+                    <strong>Mission:</strong> Democratize access to visual AI<br>
+                    <strong>Values:</strong> Innovation, collaboration, user-centered design<br>
+                    <strong>Environment:</strong> Fast-paced startup, iterative development<br>
+                    <strong>Team Size:</strong> 50-100 employees
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="compiler-panel">
+            <div class="compiler-header">
+                <div class="compiler-title">🎯 Application Compiler</div>
+                <div class="compiler-subtitle">AI-powered optimization for each submission component</div>
+            </div>
+            
+            <div class="tab-header">
+                <button class="tab-button active" onclick="switchTab('resume')" id="resume-tab">
+                    📄 Resume<div class="tab-indicator"></div>
+                </button>
+                <button class="tab-button" onclick="switchTab('cover-letter')" id="cover-letter-tab">
+                    💌 Cover Letter<div class="tab-indicator"></div>
+                </button>
+                <button class="tab-button" onclick="switchTab('portfolio')" id="portfolio-tab">
+                    🎨 Portfolio<div class="tab-indicator"></div>
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Resume Tab -->
+                <div class="tab-pane active" id="resume-pane">
+                    <h3>Resume optimization content goes here...</h3>
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="optimizeResume()">🎯 Generate Resume</button>
+                        <button class="btn btn-secondary">👁️ Preview</button>
+                        <button class="btn btn-outline">📄 Download PDF</button>
+                    </div>
+                </div>
+
+                <!-- Cover Letter Tab -->
+                <div class="tab-pane" id="cover-letter-pane">
+                    <h3>Cover letter optimization content goes here...</h3>
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="generateCoverLetter()">✨ Generate Cover Letter</button>
+                        <button class="btn btn-secondary">🔄 Regenerate</button>
+                        <button class="btn btn-outline">📄 Download PDF</button>
+                    </div>
+                </div>
+
+                <!-- Portfolio Tab -->
+                <div class="tab-pane" id="portfolio-pane">
+                    <div class="portfolio-summary">
+                        <div class="section-title">📊 Portfolio Analysis</div>
+                        <div class="portfolio-stats">
+                            <div class="portfolio-stat">
+                                <div class="portfolio-stat-value">12</div>
+                                <div class="portfolio-stat-label">Total Projects</div>
+                            </div>
+                            <div class="portfolio-stat">
+                                <div class="portfolio-stat-value">5</div>
+                                <div class="portfolio-stat-label">Recommended</div>
+                            </div>
+                            <div class="portfolio-stat">
+                                <div class="portfolio-stat-value">89%</div>
+                                <div class="portfolio-stat-label">Relevance Score</div>
+                            </div>
+                            <div class="portfolio-stat">
+                                <div class="portfolio-stat-value">3</div>
+                                <div class="portfolio-stat-label">AI/ML Projects</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-grid">
+                        <div class="project-card selected">
+                            <div class="project-header">
+                                <div class="project-title">AI Job Search Platform</div>
+                                <div class="project-type">Product Design • AI/ML Platform</div>
+                                <div class="project-tags">
+                                    <span class="project-tag">UI/UX Design</span>
+                                    <span class="project-tag">AI Integration</span>
+                                    <span class="project-tag">User Research</span>
+                                </div>
+                            </div>
+                            <div class="project-content">
+                                <div class="project-description">
+                                    Designed and built an AI-powered job search automation platform with intuitive interfaces for complex ML algorithms. Led user research, created design systems, and achieved 95% user satisfaction.
+                                </div>
+                                <div class="project-metrics">
+                                    <div class="project-metric">
+                                        <div class="project-metric-value">95%</div>
+                                        <div class="project-metric-label">Relevance</div>
+                                    </div>
+                                    <div class="project-metric">
+                                        <div class="project-metric-value">4.8/5</div>
+                                        <div class="project-metric-label">User Rating</div>
+                                    </div>
+                                </div>
+                                <div class="project-actions">
+                                    <input type="checkbox" class="project-checkbox" checked>
+                                    <button class="btn btn-outline">View Details</button>
+                                    <button class="btn btn-secondary">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="project-card selected">
+                            <div class="project-header">
+                                <div class="project-title">Healthcare Data Visualization</div>
+                                <div class="project-type">Data Visualization • Healthcare Tech</div>
+                                <div class="project-tags">
+                                    <span class="project-tag">Data Viz</span>
+                                    <span class="project-tag">Dashboard Design</span>
+                                    <span class="project-tag">Healthcare</span>
+                                </div>
+                            </div>
+                            <div class="project-content">
+                                <div class="project-description">
+                                    Created intuitive data visualization tools that made complex healthcare analytics accessible to 500K+ users. Improved workflow efficiency by 40% through user-centered design.
+                                </div>
+                                <div class="project-metrics">
+                                    <div class="project-metric">
+                                        <div class="project-metric-value">88%</div>
+                                        <div class="project-metric-label">Relevance</div>
+                                    </div>
+                                    <div class="project-metric">
+                                        <div class="project-metric-value">500K+</div>
+                                        <div class="project-metric-label">Users</div>
+                                    </div>
+                                </div>
+                                <div class="project-actions">
+                                    <input type="checkbox" class="project-checkbox" checked>
+                                    <button class="btn btn-outline">View Details</button>
+                                    <button class="btn btn-secondary">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="project-card">
+                            <div class="project-header">
+                                <div class="project-title">Cross-Platform Design System</div>
+                                <div class="project-type">Design Systems • Enterprise</div>
+                                <div class="project-tags">
+                                    <span class="project-tag">Design Systems</span>
+                                    <span class="project-tag">Component Library</span>
+                                    <span class="project-tag">Scalability</span>
+                                </div>
+                            </div>
+                            <div class="project-content">
+                                <div class="project-description">
+                                    Built comprehensive design system for enterprise platform, enabling consistent user experiences across 15+ product teams and reducing design-to-development time by 60%.
+                                </div>
+                                <div class="project-metrics">
+                                    <div class="project-metric">
+                                        <div class="project-metric-value">92%</div>
+                                        <div class="project-metric-label">Relevance</div>
+                                    </div>
+                                    <div class="project-metric">
+                                        <div class="project-metric-value">15+</div>
+                                        <div class="project-metric-label">Teams</div>
+                                    </div>
+                                </div>
+                                <div class="project-actions">
+                                    <input type="checkbox" class="project-checkbox">
+                                    <button class="btn btn-outline">View Details</button>
+                                    <button class="btn btn-secondary">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="optimizePortfolio()">🎨 Curate Portfolio</button>
+                        <button class="btn btn-secondary">👁️ Preview</button>
+                        <button class="btn btn-outline">📄 Generate PDF</button>
+                        <button class="btn btn-secondary">💾 Save Selection</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.getElementById(tabName + '-pane').classList.add('active');
+        }
+
+        function markTabCompleted(tabName) {
+            document.getElementById(tabName + '-tab').classList.add('completed');
+        }
+
+        function optimizeResume() {
+            markTabCompleted('resume');
+            alert('Resume generated for Product Designer role at Coactive AI!');
+        }
+
+        function generateCoverLetter() {
+            switchTab('cover-letter');
+            markTabCompleted('cover-letter');
+            alert('Cover letter generated with 92% cultural fit!');
+        }
+
+        function optimizePortfolio() {
+            markTabCompleted('portfolio');
+            alert('Portfolio curated - 5 projects selected with 89% relevance score!');
+        }
+
+        // Auto-select top projects
+        setTimeout(() => {
+            const checkboxes = document.querySelectorAll('.project-checkbox');
+            checkboxes[0].checked = true;
+            checkboxes[1].checked = true;
+        }, 1000);
+    </script>
+</body>
+</html>

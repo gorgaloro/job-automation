@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Discovery Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        
+        /* Navigation */
+        .top-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 15px; margin-bottom: 20px; padding: 15px 0; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .nav-container { display: flex; justify-content: center; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-link { color: #64748b; text-decoration: none; font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+        .nav-link:hover { background: #f1f5f9; color: #334155; }
+        .nav-link.active { background: #667eea; color: white; }
+        
+        .breadcrumbs { background: rgba(255, 255, 255, 0.9); padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; color: #64748b; }
+        .breadcrumbs a { color: #667eea; text-decoration: none; }
+        
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+        .subtitle { font-size: 1.2em; opacity: 0.9; }
+        
+        /* Search Section */
+        .search-section { padding: 30px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .search-container { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
+        .search-box { flex: 1; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; transition: border-color 0.2s; }
+        .search-box:focus { outline: none; border-color: #667eea; }
+        .search-btn { padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 10px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .add-company-btn { padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        
+        .sector-filters { display: flex; gap: 10px; flex-wrap: wrap; }
+        .sector-filter { padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 20px; background: white; color: #64748b; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .sector-filter.active { background: #667eea; color: white; border-color: #667eea; }
+        .sector-filter:hover { border-color: #667eea; color: #667eea; }
+        
+        /* Companies Grid */
+        .companies-section { padding: 30px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .section-title { font-size: 1.5em; font-weight: 600; color: #1e293b; }
+        .companies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        
+        .company-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; transition: all 0.2s; cursor: pointer; }
+        .company-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.12); transform: translateY(-2px); }
+        .company-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .company-logo { width: 50px; height: 50px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #64748b; font-size: 1.2em; }
+        .company-info { flex: 1; }
+        .company-name { font-size: 1.2em; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .company-sector { font-size: 0.9rem; color: #64748b; }
+        
+        .company-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-item { text-align: center; padding: 8px; background: #f8fafc; border-radius: 6px; }
+        .stat-value { font-weight: 600; color: #1e293b; margin-bottom: 2px; }
+        .stat-label { font-size: 0.8rem; color: #64748b; }
+        
+        .company-description { color: #64748b; line-height: 1.5; margin-bottom: 15px; font-size: 0.9rem; }
+        .company-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; }
+        .tag { padding: 4px 8px; background: #f1f5f9; color: #64748b; border-radius: 4px; font-size: 0.8rem; }
+        .tag.funding { background: #dcfce7; color: #166534; }
+        .tag.hiring { background: #dbeafe; color: #1e40af; }
+        .tag.growth { background: #fef3c7; color: #92400e; }
+        
+        .company-actions { display: flex; gap: 8px; }
+        .action-btn { flex: 1; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #64748b; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; text-align: center; }
+        .action-btn.primary { background: #667eea; color: white; border-color: #667eea; }
+        .action-btn:hover { border-color: #667eea; color: #667eea; }
+        .action-btn.primary:hover { background: #5a67d8; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.5em; font-weight: 600; color: #1e293b; }
+        .close-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #64748b; }
+        .modal-body { padding: 20px; }
+        
+        @media (max-width: 768px) { .companies-grid { grid-template-columns: 1fr; } .search-container { flex-direction: column; align-items: stretch; } }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="dashboard_home.html" class="nav-link">Home</a>
+                <a href="company_discovery.html" class="nav-link active">Company Discovery</a>
+                <a href="job_discovery_company_research.html" class="nav-link">Job Discovery</a>
+                <a href="application_dashboard.html" class="nav-link">Applications</a>
+                <a href="#" class="nav-link">Interviews</a>
+                <a href="#" class="nav-link">Networking</a>
+                <a href="#" class="nav-link">Events</a>
+                <a href="job_market_news.html" class="nav-link">News</a>
+                <a href="../demos/admin_settings.html" class="nav-link">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="breadcrumbs">
+        <a href="dashboard_home.html">Home</a> › Company Discovery
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Company Discovery Hub</h1>
+            <p class="subtitle">Identify, research, and track target companies across sectors</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="Search companies by name, sector, or keywords...">
+                <button class="search-btn">Search</button>
+                <button class="add-company-btn">+ Add Company</button>
+            </div>
+            
+            <div class="sector-filters">
+                <div class="sector-filter active">All Sectors</div>
+                <div class="sector-filter">Climate Tech</div>
+                <div class="sector-filter">AI/ML</div>
+                <div class="sector-filter">FinTech</div>
+                <div class="sector-filter">HealthTech</div>
+                <div class="sector-filter">Logistics</div>
+                <div class="sector-filter">EdTech</div>
+                <div class="sector-filter">Enterprise SaaS</div>
+                <div class="sector-filter">Startups</div>
+                <div class="sector-filter">Scale-ups</div>
+            </div>
+        </div>
+
+        <!-- Companies Section -->
+        <div class="companies-section">
+            <div class="section-header">
+                <h2 class="section-title">Target Companies (247 found)</h2>
+            </div>
+
+            <div class="companies-grid">
+                <!-- Climate Tech -->
+                <div class="company-card">
+                    <div class="company-header">
+                        <div class="company-logo">WS</div>
+                        <div class="company-info">
+                            <div class="company-name">Watershed</div>
+                            <div class="company-sector">Climate Tech • Series B</div>
+                        </div>
+                    </div>
+                    <div class="company-stats">
+                        <div class="stat-item"><div class="stat-value">$70M</div><div class="stat-label">Funding</div></div>
+                        <div class="stat-item"><div class="stat-value">200+</div><div class="stat-label">Employees</div></div>
+                        <div class="stat-item"><div class="stat-value">15</div><div class="stat-label">Open Jobs</div></div>
+                    </div>
+                    <div class="company-description">
+                        Leading enterprise carbon management platform helping companies measure, reduce, and report their carbon footprint.
+                    </div>
+                    <div class="company-tags">
+                        <span class="tag funding">Series B</span>
+                        <span class="tag hiring">Hiring</span>
+                        <span class="tag growth">Fast Growth</span>
+                    </div>
+                    <div class="company-actions">
+                        <button class="action-btn primary">Enrich Data</button>
+                        <button class="action-btn">View Jobs</button>
+                        <button class="action-btn">Add to HubSpot</button>
+                    </div>
+                </div>
+
+                <!-- AI/ML -->
+                <div class="company-card">
+                    <div class="company-header">
+                        <div class="company-logo">AN</div>
+                        <div class="company-info">
+                            <div class="company-name">Anthropic</div>
+                            <div class="company-sector">AI Safety • Series C</div>
+                        </div>
+                    </div>
+                    <div class="company-stats">
+                        <div class="stat-item"><div class="stat-value">$450M</div><div class="stat-label">Funding</div></div>
+                        <div class="stat-item"><div class="stat-value">500+</div><div class="stat-label">Employees</div></div>
+                        <div class="stat-item"><div class="stat-value">42</div><div class="stat-label">Open Jobs</div></div>
+                    </div>
+                    <div class="company-description">
+                        AI safety company focused on developing safe, beneficial AI systems. Known for constitutional AI and Claude assistant.
+                    </div>
+                    <div class="company-tags">
+                        <span class="tag funding">Series C</span>
+                        <span class="tag hiring">Mass Hiring</span>
+                        <span class="tag growth">Unicorn</span>
+                    </div>
+                    <div class="company-actions">
+                        <button class="action-btn primary">Enrich Data</button>
+                        <button class="action-btn">View Jobs</button>
+                        <button class="action-btn">Add to HubSpot</button>
+                    </div>
+                </div>
+
+                <!-- Logistics -->
+                <div class="company-card">
+                    <div class="company-header">
+                        <div class="company-logo">FP</div>
+                        <div class="company-info">
+                            <div class="company-name">Flexport</div>
+                            <div class="company-sector">Logistics • Public</div>
+                        </div>
+                    </div>
+                    <div class="company-stats">
+                        <div class="stat-item"><div class="stat-value">$8B</div><div class="stat-label">Valuation</div></div>
+                        <div class="stat-item"><div class="stat-value">3000+</div><div class="stat-label">Employees</div></div>
+                        <div class="stat-item"><div class="stat-value">28</div><div class="stat-label">Open Jobs</div></div>
+                    </div>
+                    <div class="company-description">
+                        Digital freight forwarder and logistics platform revolutionizing global trade through data and automation.
+                    </div>
+                    <div class="company-tags">
+                        <span class="tag">Public</span>
+                        <span class="tag hiring">Hiring</span>
+                        <span class="tag">Global</span>
+                    </div>
+                    <div class="company-actions">
+                        <button class="action-btn primary">Enrich Data</button>
+                        <button class="action-btn">View Jobs</button>
+                        <button class="action-btn">Add to HubSpot</button>
+                    </div>
+                </div>
+
+                <!-- FinTech -->
+                <div class="company-card">
+                    <div class="company-header">
+                        <div class="company-logo">ST</div>
+                        <div class="company-info">
+                            <div class="company-name">Stripe</div>
+                            <div class="company-sector">FinTech • Public</div>
+                        </div>
+                    </div>
+                    <div class="company-stats">
+                        <div class="stat-item"><div class="stat-value">$95B</div><div class="stat-label">Valuation</div></div>
+                        <div class="stat-item"><div class="stat-value">4000+</div><div class="stat-label">Employees</div></div>
+                        <div class="stat-item"><div class="stat-value">156</div><div class="stat-label">Open Jobs</div></div>
+                    </div>
+                    <div class="company-description">
+                        Leading payment processing platform powering internet commerce with AI-powered fraud detection.
+                    </div>
+                    <div class="company-tags">
+                        <span class="tag">Public</span>
+                        <span class="tag hiring">Mass Hiring</span>
+                        <span class="tag growth">Market Leader</span>
+                    </div>
+                    <div class="company-actions">
+                        <button class="action-btn primary">Enrich Data</button>
+                        <button class="action-btn">View Jobs</button>
+                        <button class="action-btn">Add to HubSpot</button>
+                    </div>
+                </div>
+
+                <!-- HealthTech -->
+                <div class="company-card">
+                    <div class="company-header">
+                        <div class="company-logo">TM</div>
+                        <div class="company-info">
+                            <div class="company-name">Tempus</div>
+                            <div class="company-sector">HealthTech • Public</div>
+                        </div>
+                    </div>
+                    <div class="company-stats">
+                        <div class="stat-item"><div class="stat-value">$8.1B</div><div class="stat-label">Market Cap</div></div>
+                        <div class="stat-item"><div class="stat-value">2500+</div><div class="stat-label">Employees</div></div>
+                        <div class="stat-item"><div class="stat-value">34</div><div class="stat-label">Open Jobs</div></div>
+                    </div>
+                    <div class="company-description">
+                        AI-enabled precision medicine platform using data and analytics to personalize cancer treatment.
+                    </div>
+                    <div class="company-tags">
+                        <span class="tag">Public</span>
+                        <span class="tag hiring">Hiring</span>
+                        <span class="tag">Healthcare AI</span>
+                    </div>
+                    <div class="company-actions">
+                        <button class="action-btn primary">Enrich Data</button>
+                        <button class="action-btn">View Jobs</button>
+                        <button class="action-btn">Add to HubSpot</button>
+                    </div>
+                </div>
+
+                <!-- Enterprise SaaS -->
+                <div class="company-card">
+                    <div class="company-header">
+                        <div class="company-logo">NO</div>
+                        <div class="company-info">
+                            <div class="company-name">Notion</div>
+                            <div class="company-sector">Productivity • Series C</div>
+                        </div>
+                    </div>
+                    <div class="company-stats">
+                        <div class="stat-item"><div class="stat-value">$10B</div><div class="stat-label">Valuation</div></div>
+                        <div class="stat-item"><div class="stat-value">400+</div><div class="stat-label">Employees</div></div>
+                        <div class="stat-item"><div class="stat-value">22</div><div class="stat-label">Open Jobs</div></div>
+                    </div>
+                    <div class="company-description">
+                        All-in-one workspace combining notes, docs, wikis, and project management with AI integration.
+                    </div>
+                    <div class="company-tags">
+                        <span class="tag funding">Series C</span>
+                        <span class="tag hiring">Hiring</span>
+                        <span class="tag growth">Unicorn</span>
+                    </div>
+                    <div class="company-actions">
+                        <button class="action-btn primary">Enrich Data</button>
+                        <button class="action-btn">View Jobs</button>
+                        <button class="action-btn">Add to HubSpot</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        document.querySelectorAll('.sector-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.sector-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Company card interactions
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.textContent.trim();
+                const companyName = this.closest('.company-card').querySelector('.company-name').textContent;
+                
+                if (action === 'Enrich Data') {
+                    alert(`Enriching data for ${companyName}...`);
+                } else if (action === 'View Jobs') {
+                    alert(`Loading ${companyName} job listings...`);
+                } else if (action === 'Add to HubSpot') {
+                    alert(`Adding ${companyName} to HubSpot CRM...`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

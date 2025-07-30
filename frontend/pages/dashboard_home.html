@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Search Dashboard - Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a202c;
+        }
+
+        .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link.active {
+            color: #3b82f6;
+            background: #eff6ff;
+            font-weight: 600;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-large {
+            grid-row: span 2;
+        }
+
+        .card-wide {
+            grid-column: span 2;
+        }
+
+        .card-full {
+            grid-column: span 3;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .card-action {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .hot-job {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #fef3c7;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .hot-job-urgent {
+            background: #fee2e2;
+        }
+
+        .job-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .job-info p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .job-action {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .news-item h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .news-item p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .health-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .health-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .status-healthy {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <!-- Logo removed for cleaner navigation -->
+            <div class="nav-links">
+                <a href="#" class="nav-link">Company Discovery</a>
+                <a href="job_discovery_company_research.html" class="nav-link">Job Discovery</a>
+                <a href="application_dashboard.html" class="nav-link">Applications</a>
+                <a href="#" class="nav-link">Interviews</a>
+                <a href="#" class="nav-link">Networking</a>
+                <a href="#" class="nav-link">Events</a>
+                <a href="#" class="nav-link">News</a>
+                <a href="../demos/admin_settings.html" class="nav-link">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">🎯 Job Search Command Center</h1>
+            <p class="dashboard-subtitle">Executive overview of your AI-powered job search operation</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Job Search Analytics -->
+            <div class="card card-large">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Job Search Analytics</h2>
+                    <button class="card-action">View Details</button>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-value">47</div>
+                        <div class="metric-label">Applications</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">23%</div>
+                        <div class="metric-label">Response Rate</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">8</div>
+                        <div class="metric-label">Interviews</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2</div>
+                        <div class="metric-label">Offers</div>
+                    </div>
+                </div>
+
+                <div style="background: #f1f5f9; border-radius: 8px; padding: 16px;">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px;">Application Funnel</h3>
+                    <div style="font-size: 0.9rem; margin-bottom: 8px;">Applied → Response: 47 → 11 (23%)</div>
+                    <div style="font-size: 0.9rem; margin-bottom: 8px;">Response → Interview: 11 → 8 (73%)</div>
+                    <div style="font-size: 0.9rem;">Interview → Offer: 8 → 2 (25%)</div>
+                </div>
+            </div>
+
+            <!-- Hot Jobs -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔥 Hot Jobs</h2>
+                </div>
+                
+                <div class="hot-job hot-job-urgent">
+                    <div class="job-info">
+                        <h4>Senior Product Manager</h4>
+                        <p>Stripe • Deadline: 2 hours</p>
+                    </div>
+                    <button class="job-action">Apply Now</button>
+                </div>
+
+                <div class="hot-job">
+                    <div class="job-info">
+                        <h4>Revenue Operations Lead</h4>
+                        <p>Notion • 98% match</p>
+                    </div>
+                    <button class="job-action">Quick Apply</button>
+                </div>
+
+                <div class="hot-job">
+                    <div class="job-info">
+                        <h4>Customer Success Director</h4>
+                        <p>Figma • Referral available</p>
+                    </div>
+                    <button class="job-action">Get Referral</button>
+                </div>
+            </div>
+
+            <!-- Action Items -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📧 Action Items</h2>
+                </div>
+                
+                <div class="action-item">
+                    <div class="action-icon">📅</div>
+                    <div>
+                        <h4>Interview Invitation - Google</h4>
+                        <p>Schedule by Friday</p>
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-icon">📝</div>
+                    <div>
+                        <h4>Application Update - Microsoft</h4>
+                        <p>References needed</p>
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-icon">🤝</div>
+                    <div>
+                        <h4>Recruiter Outreach - Tesla</h4>
+                        <p>New opportunity</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Intelligence -->
+            <div class="card card-wide">
+                <div class="card-header">
+                    <h2 class="card-title">🌐 Market Intelligence</h2>
+                </div>
+                
+                <div class="news-item">
+                    <h4>Tech Hiring Surge in Q4 2024</h4>
+                    <p>Product management roles up 34% with AI/ML focus driving demand...</p>
+                </div>
+
+                <div class="news-item">
+                    <h4>Revenue Operations Salaries Rise</h4>
+                    <p>RevOps roles see 18% salary increase, now averaging $165K...</p>
+                </div>
+
+                <div class="news-item">
+                    <h4>Stripe Expands Product Team</h4>
+                    <p>Payment giant hiring 200+ product roles across all levels...</p>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ System Health</h2>
+                </div>
+                
+                <div class="health-grid">
+                    <div class="health-item">
+                        <span>Job Board APIs</span>
+                        <span class="health-status status-healthy">Operational</span>
+                    </div>
+                    <div class="health-item">
+                        <span>AI Models</span>
+                        <span class="health-status status-healthy">99.8% Uptime</span>
+                    </div>
+                    <div class="health-item">
+                        <span>Email Integration</span>
+                        <span class="health-status status-healthy">Synced</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

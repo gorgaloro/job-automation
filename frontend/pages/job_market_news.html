@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Market Intelligence Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        
+        /* Navigation */
+        .top-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 15px; margin-bottom: 20px; padding: 15px 0; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .nav-container { display: flex; justify-content: center; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-link { color: #64748b; text-decoration: none; font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+        .nav-link:hover { background: #f1f5f9; color: #334155; }
+        .nav-link.active { background: #667eea; color: white; }
+        
+        .breadcrumbs { background: rgba(255, 255, 255, 0.9); padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; color: #64748b; }
+        .breadcrumbs a { color: #667eea; text-decoration: none; }
+        
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+        .subtitle { font-size: 1.2em; opacity: 0.9; }
+        
+        /* Market Pulse */
+        .market-pulse { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 30px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .pulse-card { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }
+        .pulse-card:hover { transform: translateY(-2px); }
+        .pulse-score { font-size: 2.5em; font-weight: 700; margin-bottom: 8px; }
+        .pulse-score.excellent { color: #10b981; }
+        .pulse-score.good { color: #3b82f6; }
+        .pulse-score.warning { color: #f59e0b; }
+        .pulse-label { font-size: 0.9rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .pulse-trend { font-size: 0.8rem; font-weight: 500; }
+        .trend-up { color: #10b981; }
+        
+        /* Content Grid */
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; padding: 30px; }
+        .news-section { background: white; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f1f5f9; }
+        .section-title { font-size: 1.5em; font-weight: 600; color: #1e293b; }
+        
+        .filter-tabs { display: flex; gap: 10px; }
+        .filter-tab { padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #64748b; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; }
+        .filter-tab.active { background: #667eea; color: white; border-color: #667eea; }
+        
+        .news-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 15px; transition: all 0.2s; }
+        .news-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .news-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .news-category { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .category-funding { background: #dcfce7; color: #166534; }
+        .category-hiring { background: #dbeafe; color: #1e40af; }
+        .category-product { background: #fef3c7; color: #92400e; }
+        .news-time { font-size: 0.8rem; color: #64748b; }
+        .news-title { font-size: 1.1em; font-weight: 600; color: #1e293b; margin-bottom: 8px; line-height: 1.4; }
+        .news-summary { color: #64748b; line-height: 1.6; margin-bottom: 12px; }
+        .news-impact { display: flex; justify-content: space-between; align-items: center; }
+        .impact-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 500; }
+        .impact-high { background: #dcfce7; color: #166534; }
+        .impact-medium { background: #fef3c7; color: #92400e; }
+        .action-btn { padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #64748b; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; margin-left: 8px; }
+        .action-btn:hover { background: #f8fafc; border-color: #667eea; color: #667eea; }
+        
+        /* Sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 25px; }
+        .sidebar-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .card-title { font-size: 1.2em; font-weight: 600; color: #1e293b; margin-bottom: 15px; }
+        .sector-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .sector-name { font-weight: 500; color: #374151; }
+        .heat-bar { width: 60px; height: 6px; border-radius: 3px; overflow: hidden; }
+        .heat-fill { height: 100%; border-radius: 3px; }
+        .heat-hot { background: #ef4444; }
+        .heat-warm { background: #f59e0b; }
+        .heat-cool { background: #3b82f6; }
+        
+        .company-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .company-logo { width: 40px; height: 40px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #64748b; }
+        .company-info { flex: 1; }
+        .company-name { font-weight: 600; color: #374151; margin-bottom: 2px; }
+        .company-status { font-size: 0.8rem; color: #64748b; }
+        .company-trend { font-size: 0.8rem; font-weight: 500; }
+        
+        .alert-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .alert-opportunity { background: #ecfdf5; border-left: 4px solid #10b981; }
+        .alert-info { background: #eff6ff; border-left: 4px solid #3b82f6; }
+        .alert-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: white; margin-top: 2px; }
+        .alert-icon.opportunity { background: #10b981; }
+        .alert-icon.info { background: #3b82f6; }
+        .alert-content { flex: 1; }
+        .alert-title { font-weight: 600; color: #374151; margin-bottom: 4px; }
+        .alert-text { font-size: 0.9rem; color: #64748b; line-height: 1.4; }
+        
+        .chart-container { position: relative; height: 200px; margin-top: 15px; }
+        
+        @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } .market-pulse { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .market-pulse { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="dashboard_home.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Company Discovery</a>
+                <a href="job_discovery_company_research.html" class="nav-link">Job Discovery</a>
+                <a href="application_dashboard.html" class="nav-link">Applications</a>
+                <a href="#" class="nav-link">Interviews</a>
+                <a href="#" class="nav-link">Networking</a>
+                <a href="#" class="nav-link">Events</a>
+                <a href="job_market_news.html" class="nav-link active">News</a>
+                <a href="../demos/admin_settings.html" class="nav-link">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="breadcrumbs">
+        <a href="dashboard_home.html">Home</a> › Job Market Intelligence
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Job Market Intelligence Hub</h1>
+            <p class="subtitle">Real-time insights, trends, and opportunities in the job market</p>
+        </div>
+
+        <!-- Market Pulse -->
+        <div class="market-pulse">
+            <div class="pulse-card">
+                <div class="pulse-score excellent">87</div>
+                <div class="pulse-label">Market Health</div>
+                <div class="pulse-trend trend-up">↗ +5 this week</div>
+            </div>
+            <div class="pulse-card">
+                <div class="pulse-score good">2.3M</div>
+                <div class="pulse-label">Active Jobs</div>
+                <div class="pulse-trend trend-up">↗ +12% vs last month</div>
+            </div>
+            <div class="pulse-card">
+                <div class="pulse-score warning">68%</div>
+                <div class="pulse-label">Remote Adoption</div>
+                <div class="pulse-trend trend-up">↗ +3% this quarter</div>
+            </div>
+            <div class="pulse-card">
+                <div class="pulse-score good">$142K</div>
+                <div class="pulse-label">Avg Salary (Tech)</div>
+                <div class="pulse-trend trend-up">↗ +8% YoY</div>
+            </div>
+            <div class="pulse-card">
+                <div class="pulse-score excellent">4.2</div>
+                <div class="pulse-label">Hiring Velocity</div>
+                <div class="pulse-trend trend-up">↗ +15% this week</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- News Feed -->
+            <div class="news-section">
+                <div class="section-header">
+                    <h2 class="section-title">Latest Intelligence</h2>
+                    <div class="filter-tabs">
+                        <div class="filter-tab active">All</div>
+                        <div class="filter-tab">Funding</div>
+                        <div class="filter-tab">Hiring</div>
+                        <div class="filter-tab">Products</div>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-header">
+                        <div class="news-category category-funding">Series C Funding</div>
+                        <div class="news-time">2 hours ago</div>
+                    </div>
+                    <div class="news-title">Anthropic Raises $450M Series C, Plans 300+ Engineering Hires</div>
+                    <div class="news-summary">
+                        AI safety company Anthropic announced a massive $450M Series C round led by Spark Capital. The company plans to expand their engineering team by 300+ roles across ML research, safety engineering, and infrastructure.
+                    </div>
+                    <div class="news-impact">
+                        <span class="impact-badge impact-high">High Impact - AI/ML Opportunity</span>
+                        <div>
+                            <button class="action-btn">Research</button>
+                            <button class="action-btn">Track</button>
+                            <button class="action-btn">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-header">
+                        <div class="news-category category-hiring">Hiring Surge</div>
+                        <div class="news-time">4 hours ago</div>
+                    </div>
+                    <div class="news-title">Stripe Announces 1,000 New Hires Across Product, Engineering, and Sales</div>
+                    <div class="news-summary">
+                        Payment giant Stripe revealed plans to hire 1,000+ employees globally, reversing 2022 layoffs. Focus areas include AI-powered fraud detection, global expansion, and enterprise solutions.
+                    </div>
+                    <div class="news-impact">
+                        <span class="impact-badge impact-high">High Impact - FinTech Expansion</span>
+                        <div>
+                            <button class="action-btn">Research</button>
+                            <button class="action-btn">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-header">
+                        <div class="news-category category-product">Product Launch</div>
+                        <div class="news-time">6 hours ago</div>
+                    </div>
+                    <div class="news-title">Microsoft Launches AI Copilot for Healthcare, Signals Major Hiring Push</div>
+                    <div class="news-summary">
+                        Microsoft unveiled AI Copilot specifically designed for healthcare providers, integrating with Epic and Cerner systems. The launch suggests significant hiring in healthcare AI and clinical informatics roles.
+                    </div>
+                    <div class="news-impact">
+                        <span class="impact-badge impact-medium">Medium Impact - HealthTech Opportunity</span>
+                        <div>
+                            <button class="action-btn">Research</button>
+                            <button class="action-btn">Track</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-header">
+                        <div class="news-category category-funding">Market Trend</div>
+                        <div class="news-time">12 hours ago</div>
+                    </div>
+                    <div class="news-title">Climate Tech Funding Hits Record $8.2B in Q4, Driving Job Growth</div>
+                    <div class="news-summary">
+                        Climate technology sector attracted record $8.2B in Q4 2024, with carbon management and clean energy leading. Major players like Watershed, Persefoni, and Carbon Direct expanding rapidly.
+                    </div>
+                    <div class="news-impact">
+                        <span class="impact-badge impact-high">High Impact - Emerging Sector Growth</span>
+                        <div>
+                            <button class="action-btn">Explore</button>
+                            <button class="action-btn">Research</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sector Heat Map -->
+                <div class="sidebar-card">
+                    <h3 class="card-title">Sector Heat Map</h3>
+                    <div class="sector-item">
+                        <div class="sector-name">AI/Machine Learning</div>
+                        <div>
+                            <div class="heat-bar"><div class="heat-fill heat-hot" style="width: 95%;"></div></div>
+                            <span>🔥</span>
+                        </div>
+                    </div>
+                    <div class="sector-item">
+                        <div class="sector-name">Climate Tech</div>
+                        <div>
+                            <div class="heat-bar"><div class="heat-fill heat-hot" style="width: 88%;"></div></div>
+                            <span>🔥</span>
+                        </div>
+                    </div>
+                    <div class="sector-item">
+                        <div class="sector-name">FinTech</div>
+                        <div>
+                            <div class="heat-bar"><div class="heat-fill heat-warm" style="width: 75%;"></div></div>
+                            <span>📈</span>
+                        </div>
+                    </div>
+                    <div class="sector-item">
+                        <div class="sector-name">HealthTech</div>
+                        <div>
+                            <div class="heat-bar"><div class="heat-fill heat-warm" style="width: 72%;"></div></div>
+                            <span>📈</span>
+                        </div>
+                    </div>
+                    <div class="sector-item">
+                        <div class="sector-name">EdTech</div>
+                        <div>
+                            <div class="heat-bar"><div class="heat-fill heat-cool" style="width: 45%;"></div></div>
+                            <span>📉</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trending Companies -->
+                <div class="sidebar-card">
+                    <h3 class="card-title">Companies to Watch</h3>
+                    <div class="company-item">
+                        <div class="company-logo">AN</div>
+                        <div class="company-info">
+                            <div class="company-name">Anthropic</div>
+                            <div class="company-status">Series C • $450M raised</div>
+                        </div>
+                        <div class="company-trend trend-up">+300 jobs</div>
+                    </div>
+                    <div class="company-item">
+                        <div class="company-logo">ST</div>
+                        <div class="company-info">
+                            <div class="company-name">Stripe</div>
+                            <div class="company-status">Public • Expansion mode</div>
+                        </div>
+                        <div class="company-trend trend-up">+1000 jobs</div>
+                    </div>
+                    <div class="company-item">
+                        <div class="company-logo">WS</div>
+                        <div class="company-info">
+                            <div class="company-name">Watershed</div>
+                            <div class="company-status">Series B • Climate tech</div>
+                        </div>
+                        <div class="company-trend trend-up">+150 jobs</div>
+                    </div>
+                </div>
+
+                <!-- Smart Alerts -->
+                <div class="sidebar-card">
+                    <h3 class="card-title">Smart Alerts</h3>
+                    <div class="alert-item alert-opportunity">
+                        <div class="alert-icon opportunity">!</div>
+                        <div class="alert-content">
+                            <div class="alert-title">High-Match Opportunity</div>
+                            <div class="alert-text">Anthropic's AI safety roles align 95% with your background. Apply within 48 hours for best visibility.</div>
+                        </div>
+                    </div>
+                    <div class="alert-item alert-info">
+                        <div class="alert-icon info">i</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Sector Trend</div>
+                            <div class="alert-text">Climate tech funding up 340% YoY. Consider expanding search to include carbon analytics roles.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="sidebar-card">
+                    <h3 class="card-title">Hiring Velocity Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="hiringTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hiring Trends Chart
+        const hiringCtx = document.getElementById('hiringTrendsChart').getContext('2d');
+        new Chart(hiringCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'AI/ML',
+                    data: [100, 120, 140, 180, 220, 280],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Climate Tech',
+                    data: [50, 60, 80, 110, 140, 180],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application SWOT Analysis - Job Search Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .swot-overview {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .overview-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .overview-subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .match-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: #f8fafc;
+            padding: 20px 32px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            background: conic-gradient(from 0deg, #10b981 0deg 252deg, #e5e7eb 252deg 360deg);
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .score-text {
+            position: relative;
+            z-index: 2;
+            color: #1e293b;
+        }
+
+        .score-details {
+            text-align: left;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .score-description {
+            font-size: 0.95rem;
+            color: #64748b;
+        }
+
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .swot-quadrant {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swot-quadrant::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .strengths::before { background: linear-gradient(90deg, #10b981, #059669); }
+        .weaknesses::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+        .opportunities::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+        .threats::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+
+        .quadrant-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .quadrant-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .strengths .quadrant-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        .weaknesses .quadrant-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .opportunities .quadrant-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .threats .quadrant-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+        .quadrant-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .quadrant-items {
+            display: grid;
+            gap: 16px;
+        }
+
+        .swot-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .swot-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .strengths .swot-item {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 4px solid #10b981;
+        }
+
+        .weaknesses .swot-item {
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border-left: 4px solid #ef4444;
+        }
+
+        .opportunities .swot-item {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .threats .swot-item {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .item-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .strengths .item-icon { background: #10b981; }
+        .weaknesses .item-icon { background: #ef4444; }
+        .opportunities .item-icon { background: #3b82f6; }
+        .threats .item-icon { background: #f59e0b; }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .strengths .item-title { color: #065f46; }
+        .weaknesses .item-title { color: #991b1b; }
+        .opportunities .item-title { color: #1e40af; }
+        .threats .item-title { color: #92400e; }
+
+        .item-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .strategic-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .summary-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .strategy-section {
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .strategy-section.so { border-color: #10b981; background: #f0fdf4; }
+        .strategy-section.wo { border-color: #3b82f6; background: #eff6ff; }
+        .strategy-section.st { border-color: #f59e0b; background: #fffbeb; }
+        .strategy-section.wt { border-color: #ef4444; background: #fef2f2; }
+
+        .strategy-label {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .so .strategy-label { color: #065f46; }
+        .wo .strategy-label { color: #1e40af; }
+        .st .strategy-label { color: #92400e; }
+        .wt .strategy-label { color: #991b1b; }
+
+        .strategy-content {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .action-items {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .action-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .action-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .action-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
+        }
+
+        .action-item:hover {
+            background: #f1f5f9;
+            transform: translateY(-2px);
+        }
+
+        .action-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-item-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+        }
+
+        .action-description {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1200px) {
+            .swot-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .overview-title {
+                font-size: 1.6rem;
+            }
+            
+            .match-score {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .score-details {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Application SWOT Analysis</h1>
+            <p>Senior Product Manager • Coactive AI • Strategic Package Assessment</p>
+        </div>
+
+        <!-- Overview -->
+        <div class="swot-overview">
+            <div class="overview-title">Strategic Application Analysis</div>
+            <div class="overview-subtitle">Internal application strengths/weaknesses vs. external competitive landscape and industry trends</div>
+            <div class="match-score">
+                <div class="score-circle">
+                    <div class="score-text">78%</div>
+                </div>
+                <div class="score-details">
+                    <div class="score-label">Overall Strategic Fit</div>
+                    <div class="score-description">Strong foundation with targeted optimization opportunities</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SWOT Grid -->
+        <div class="swot-grid">
+            <!-- Strengths -->
+            <div class="swot-quadrant strengths">
+                <div class="quadrant-header">
+                    <div class="quadrant-icon">💪</div>
+                    <div class="quadrant-title">Strengths</div>
+                </div>
+                <div class="quadrant-items">
+                    <div class="swot-item">
+                        <div class="item-icon">S1</div>
+                        <div class="item-content">
+                            <div class="item-title">Extensive Leadership Experience</div>
+                            <div class="item-description">15+ years managing cross-functional teams across healthcare, automotive, and technology sectors with proven track record of complex implementations</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">S2</div>
+                        <div class="item-content">
+                            <div class="item-title">AI/ML Technical Foundation</div>
+                            <div class="item-description">Recent hands-on AI platform development, OpenAI integration, machine learning applications, and automation workflows demonstrate technical depth</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">S3</div>
+                        <div class="item-content">
+                            <div class="item-title">Process Optimization Expertise</div>
+                            <div class="item-description">Proven ability to streamline operations, reduce costs by 30%+, and improve efficiency across large-scale organizations</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">S4</div>
+                        <div class="item-content">
+                            <div class="item-title">Data-Driven Decision Making</div>
+                            <div class="item-description">Strong analytics background with experience in KPIs, metrics, performance optimization, and quantifiable business outcomes</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">S5</div>
+                        <div class="item-content">
+                            <div class="item-title">Stakeholder Management Excellence</div>
+                            <div class="item-description">Exceptional communication skills with proven ability to manage executive relationships, complex projects, and multi-stakeholder initiatives</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weaknesses -->
+            <div class="swot-quadrant weaknesses">
+                <div class="quadrant-header">
+                    <div class="quadrant-icon">⚠️</div>
+                    <div class="quadrant-title">Weaknesses</div>
+                </div>
+                <div class="quadrant-items">
+                    <div class="swot-item">
+                        <div class="item-icon">W1</div>
+                        <div class="item-content">
+                            <div class="item-title">Computer Vision Domain Gap</div>
+                            <div class="item-description">Limited direct experience with computer vision products, image processing algorithms, or visual AI applications in production environments</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">W2</div>
+                        <div class="item-content">
+                            <div class="item-title">B2B SaaS Platform Experience</div>
+                            <div class="item-description">Background primarily in healthcare/automotive operations vs. software-as-a-service platforms and subscription business models</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">W3</div>
+                        <div class="item-content">
+                            <div class="item-title">API Product Management</div>
+                            <div class="item-description">Limited experience managing developer-facing APIs, SDK development, and platform products for technical audiences</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">W4</div>
+                        <div class="item-content">
+                            <div class="item-title">Pure Product Strategy Focus</div>
+                            <div class="item-description">Strong operational background but less experience with pure product strategy, roadmapping, and market positioning</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">W5</div>
+                        <div class="item-content">
+                            <div class="item-title">Developer Tools Experience</div>
+                            <div class="item-description">Limited experience building tools and platforms specifically designed for developer workflows and technical integration</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opportunities -->
+            <div class="swot-quadrant opportunities">
+                <div class="quadrant-header">
+                    <div class="quadrant-icon">🚀</div>
+                    <div class="quadrant-title">Opportunities</div>
+                </div>
+                <div class="quadrant-items">
+                    <div class="swot-item">
+                        <div class="item-icon">O1</div>
+                        <div class="item-content">
+                            <div class="item-title">Senior Leadership Premium in AI Market</div>
+                            <div class="item-description">Rapidly growing AI/computer vision industry values experienced leaders who can navigate complex enterprise implementations and scale operations</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">O2</div>
+                        <div class="item-content">
+                            <div class="item-title">Diverse Skill Set Advantage</div>
+                            <div class="item-description">Job requires broad cross-functional skills (technical, operational, strategic) where deep business insights are valued more than narrow technical specialization</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">O3</div>
+                        <div class="item-content">
+                            <div class="item-title">Enterprise AI Adoption Wave</div>
+                            <div class="item-description">Growing enterprise demand for AI solutions favors candidates with proven large-scale implementation and stakeholder management experience</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">O4</div>
+                        <div class="item-content">
+                            <div class="item-title">Talent Shortage in AI Leadership</div>
+                            <div class="item-description">Limited pool of candidates with both AI technical understanding and senior leadership experience creates competitive advantage</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">O5</div>
+                        <div class="item-content">
+                            <div class="item-title">Industry Maturation Trend</div>
+                            <div class="item-description">Computer vision industry moving from pure R&D to enterprise deployment, favoring operational excellence and business acumen over pure technical depth</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Threats -->
+            <div class="swot-quadrant threats">
+                <div class="quadrant-header">
+                    <div class="quadrant-icon">⚡</div>
+                    <div class="quadrant-title">Threats</div>
+                </div>
+                <div class="quadrant-items">
+                    <div class="swot-item">
+                        <div class="item-icon">T1</div>
+                        <div class="item-content">
+                            <div class="item-title">Junior Technical Specialists</div>
+                            <div class="item-description">More junior candidates with deeper computer vision/ML technical expertise may be preferred for hands-on technical product management</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">T2</div>
+                        <div class="item-content">
+                            <div class="item-title">B2B SaaS Native Candidates</div>
+                            <div class="item-description">Candidates with extensive B2B SaaS platform experience may have competitive advantage in understanding developer adoption and API monetization</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">T3</div>
+                        <div class="item-content">
+                            <div class="item-title">AI Market Talent Inflation</div>
+                            <div class="item-description">High demand for AI talent may lead to salary inflation and competition from well-funded startups offering equity upside</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">T4</div>
+                        <div class="item-content">
+                            <div class="item-title">Technical Depth Bias</div>
+                            <div class="item-description">Industry trend toward hiring technical PMs with engineering backgrounds may disadvantage operations-focused candidates</div>
+                        </div>
+                    </div>
+                    <div class="swot-item">
+                        <div class="item-icon">T5</div>
+                        <div class="item-content">
+                            <div class="item-title">Startup Culture Fit Concerns</div>
+                            <div class="item-description">Large enterprise background may raise questions about adaptability to fast-paced startup environment and scrappy execution style</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="strategic-summary">
+            <div class="summary-header">
+                <span style="font-size: 1.5rem;">🎯</span>
+                <div class="summary-title">Application Package Summary</div>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 1.2rem; color: #1e293b; margin-bottom: 16px; font-weight: 600;">
+                    SWOT Analysis Complete
+                </div>
+                <div style="color: #64748b; margin-bottom: 24px; line-height: 1.6;">
+                    Your application package has been analyzed across internal strengths/weaknesses and external market factors. 
+                    This analysis provides the foundation for optimizing your resume, cover letter, and interview preparation.
+                </div>
+                <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                    <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 16px 24px; border-radius: 8px; text-align: center;">
+                        <div style="font-weight: 600; color: #065f46; margin-bottom: 4px;">5 Key Strengths</div>
+                        <div style="font-size: 0.9rem; color: #16a34a;">Internal advantages identified</div>
+                    </div>
+                    <div style="background: #fef2f2; border: 2px solid #ef4444; padding: 16px 24px; border-radius: 8px; text-align: center;">
+                        <div style="font-weight: 600; color: #991b1b; margin-bottom: 4px;">5 Areas to Address</div>
+                        <div style="font-size: 0.9rem; color: #dc2626;">Internal gaps to optimize</div>
+                    </div>
+                    <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 16px 24px; border-radius: 8px; text-align: center;">
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 4px;">5 Market Opportunities</div>
+                        <div style="font-size: 0.9rem; color: #2563eb;">External trends to leverage</div>
+                    </div>
+                    <div style="background: #fffbeb; border: 2px solid #f59e0b; padding: 16px 24px; border-radius: 8px; text-align: center;">
+                        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">5 Competitive Threats</div>
+                        <div style="font-size: 0.9rem; color: #d97706;">External challenges to counter</div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">📋 Ready for Next Steps</div>
+                    <div style="color: #64748b; font-size: 0.95rem;">
+                        Strategic positioning matrix and action plan will be available in the <strong>Interview Prep module</strong> 
+                        if an interview is scheduled. This analysis forms the foundation for crafting compelling interview narratives.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

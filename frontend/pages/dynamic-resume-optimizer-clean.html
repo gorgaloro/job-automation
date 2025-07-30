@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Resume Optimizer - Allen Walker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn.primary {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        .btn.primary:hover {
+            background: #c0392b;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .job-analysis {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #3498db;
+        }
+
+        .resume-display {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.2em;
+        }
+
+        .overall-score {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .job-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .job-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .company-name {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .job-location {
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+
+        .keyword-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .keyword-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .keyword-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .keyword-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .keyword-tag.matched {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .keyword-tag.missing {
+            background: #fdeaea;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .resume-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .resume-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .score-badge {
+            background: #27ae60;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .score-badge.low {
+            background: #e74c3c;
+        }
+
+        .score-badge.medium {
+            background: #f39c12;
+        }
+
+        .job-entry {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+
+        .job-header {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .job-header h4 {
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .job-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .bullet-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .bullet-point:hover {
+            background: #f8f9fa;
+        }
+
+        .bullet-point.ai-suggestion {
+            background: #f0f8ff;
+            border: 1px solid #e3f2fd;
+            position: relative;
+        }
+
+        .bullet-point.ai-suggestion::before {
+            content: "✨ AI";
+            position: absolute;
+            top: -8px;
+            right: 8px;
+            background: #2196f3;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .bullet-checkbox {
+            margin-top: 3px;
+        }
+
+        .bullet-content {
+            flex: 1;
+        }
+
+        .bullet-text {
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+
+        .bullet-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+
+        .category-label {
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        .bullet-score {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .error {
+            background: #fdeaea;
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .skill-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+
+        .skill-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .skill-level {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        /* Inline Editing Styles */
+        .editable-content {
+            border: 2px solid transparent;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: all 0.2s ease;
+            cursor: text;
+            position: relative;
+        }
+
+        .editable-content:hover {
+            border-color: #e3f2fd;
+            background-color: #f8f9fa;
+        }
+
+        .editable-content:hover::after {
+            content: "Click to edit";
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0.8;
+        }
+
+        .editable-content:focus {
+            outline: none;
+            border-color: #2196f3;
+            background-color: #fff;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+
+        .editable-content:focus::after {
+            content: "Press Enter to save, Esc to cancel";
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #2196f3;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .editable-content.modified {
+            border-color: #ff9800;
+            background-color: #fff3e0;
+        }
+
+        .editable-content.modified::after {
+            content: "Unsaved changes";
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #ff9800;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .edit-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            color: #2196f3;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .editable-content:hover .edit-indicator,
+        .editable-content:focus .edit-indicator {
+            opacity: 1;
+        }
+
+        .save-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .save-notification.show {
+            transform: translateX(0);
+        }
+
+        /* Save/Cancel Buttons for Multi-line Editing */
+        .edit-buttons {
+            display: none;
+            margin-top: 5px;
+            gap: 5px;
+        }
+
+        .edit-buttons.show {
+            display: flex;
+        }
+
+        .edit-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn.save {
+            background: #4caf50;
+            color: white;
+        }
+
+        .edit-btn.save:hover {
+            background: #45a049;
+        }
+
+        .edit-btn.cancel {
+            background: #f44336;
+            color: white;
+        }
+
+        .edit-btn.cancel:hover {
+            background: #da190b;
+        }
+
+        /* Section-level checkbox styling */
+        .section-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .resume-section h3 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* Job-level checkbox styling */
+        .job-checkbox {
+            margin-right: 10px;
+            transform: scale(1.1);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .job-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .job-header-content {
+            flex: 1;
+        }
+
+        .job-header-content h4 {
+            margin: 0 0 5px 0;
+        }
+
+        .job-meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Drag and drop styling */
+        .drag-handle {
+            color: #ccc;
+            cursor: grab;
+            font-size: 16px;
+            margin-right: 8px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s ease;
+        }
+
+        .drag-handle:hover {
+            color: #007bff;
+        }
+
+        .bullet-point {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .bullet-point:hover {
+            background-color: #f8f9fa;
+        }
+
+        .bullet-point.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: #e3f2fd;
+        }
+
+        .bullet-point.drag-over {
+            border-top: 3px solid #007bff;
+            margin-top: 3px;
+        }
+
+        .bullet-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* AI suggestion styling */
+        .bullet-point.ai-suggestion {
+            background-color: #f0f8ff;
+            border-left: 3px solid #4a90e2;
+            margin-left: 5px;
+        }
+
+        .bullet-point.ai-suggestion:hover {
+            background-color: #e6f3ff;
+        }
+
+        .bullet-point.ai-suggestion .bullet-text {
+            font-style: italic;
+            color: #2c5aa0;
+        }
+
+        .bullet-point.ai-suggestion .category-label {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .bullet-point.ai-suggestion.dragging {
+            background-color: #cce7ff;
+            border-left-color: #1a73e8;
+        }
+
+        /* Add job/task buttons */
+        .add-job-btn, .add-task-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-job-btn:hover, .add-task-btn:hover {
+            background-color: #218838;
+        }
+
+        .add-task-btn {
+            background-color: #17a2b8;
+            margin: 10px 0;
+            display: block;
+            width: fit-content;
+        }
+
+        .add-task-btn:hover {
+            background-color: #138496;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Dynamic Resume Optimizer</h1>
+            <p class="subtitle">AI-Powered Resume Optimization Using Allen Walker's Real Resume Data</p>
+            <div class="controls">
+                <button class="btn" onclick="resetToBaseline()">🔄 Reset to Baseline</button>
+                <button class="btn primary" onclick="generateAISuggestions()">✨ Generate AI Suggestions</button>
+                <button class="btn" onclick="saveToBaseline()">💾 Save to Baseline</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Job Analysis Section -->
+            <div class="job-analysis">
+                <h2 class="section-title">
+                    <span class="section-icon">📊</span>
+                    Job Analysis
+                </h2>
+
+                <div id="overallScore" class="overall-score">
+                    <span class="score-value">Loading...</span>
+                    <span class="score-label">Overall Match Score</span>
+                </div>
+
+                <div id="jobInfo" class="job-info">
+                    <div class="loading">Loading job information...</div>
+                </div>
+
+                <div id="companyInfo" class="keyword-section">
+                    <h3>Company Overview</h3>
+                    <div class="loading">Loading company information...</div>
+                </div>
+
+                <div id="keywordAnalysis" class="keyword-section">
+                    <h3>📝 Matched Keywords</h3>
+                    <div id="matchedKeywords" class="keyword-tags">
+                        <div class="loading">Loading keywords...</div>
+                    </div>
+                    
+                    <h3 style="margin-top: 20px;">❌ Missing Keywords</h3>
+                    <div id="missingKeywords" class="keyword-tags">
+                        <div class="loading">Loading keywords...</div>
+                    </div>
+                </div>
+
+                <div id="jobSummary" class="keyword-section">
+                    <h3>Job Summary</h3>
+                    <div class="loading">Loading job summary...</div>
+                </div>
+            </div>
+
+            <!-- Optimized Resume Section -->
+            <div class="resume-display">
+                <h2 class="section-title">
+                    <span class="section-icon">📄</span>
+                    Optimized Resume
+                </h2>
+
+                <!-- Personal Information -->
+                <div id="personalInfo" class="resume-section">
+                    <div class="loading">Loading personal information...</div>
+                </div>
+
+                <!-- Executive Summary -->
+                <div id="executiveSummary" class="resume-section">
+                    <h3>Executive Summary <span class="score-badge">Loading...</span></h3>
+                    <div class="loading">Loading executive summary...</div>
+                </div>
+
+                <!-- Strategic Impact -->
+                <div id="strategicImpact" class="resume-section">
+                    <h3>Strategic Impact <span class="score-badge">Loading...</span></h3>
+                    <div class="loading">Loading strategic impact...</div>
+                </div>
+
+                <!-- Professional Experience -->
+                <div class="resume-section">
+                    <h3>Professional Experience
+                        <button class="add-job-btn" onclick="openAddJobModal('professional_experience')">+ Add Job</button>
+                    </h3>
+                    <div id="professionalExperience"></div>
+                </div>
+
+                <!-- Early Career Roles -->
+                <div class="resume-section">
+                    <h3>
+                        <input type="checkbox" class="section-checkbox" data-section="early_career" onchange="toggleSection(this)">
+                        Early Career Roles
+                        <button class="add-job-btn" onclick="openAddJobModal('early_career')">+ Add Job</button>
+                    </h3>
+                    <div id="earlyCareerRoles"></div>
+                </div>
+
+                <!-- Additional Experience -->
+                <div class="resume-section">
+                    <h3>
+                        <input type="checkbox" class="section-checkbox" data-section="additional_experience" onchange="toggleSection(this)">
+                        Additional Experience
+                        <button class="add-job-btn" onclick="openAddJobModal('additional_experience')">+ Add Job</button>
+                    </h3>
+                    <div id="additionalExperience"></div>
+                </div>
+
+                <!-- Community Leadership & Networks -->
+                <div class="resume-section">
+                    <h3>
+                        <input type="checkbox" class="section-checkbox" data-section="community_leadership" onchange="toggleSection(this)">
+                        Community Leadership & Networks
+                        <button class="add-job-btn" onclick="openAddJobModal('community_leadership')">+ Add Job</button>
+                    </h3>
+                    <div id="communityLeadership"></div>
+                </div>
+
+                <!-- Skills & Expertise -->
+                <div id="skillsExpertise" class="resume-section">
+                    <h3>Skills & Expertise <span class="score-badge">Loading...</span></h3>
+                    <div class="loading">Loading skills...</div>
+                </div>
+
+                <!-- Education -->
+                <div id="education" class="resume-section">
+                    <h3>Education <span class="score-badge">Loading...</span></h3>
+                    <div class="loading">Loading education...</div>
+                </div>
+
+                <!-- Certifications -->
+                <div id="certifications" class="resume-section">
+                    <h3>Certifications <span class="score-badge">Loading...</span></h3>
+                    <div class="loading">Loading certifications...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let jobAnalysisData = null;
+        let resumeData = null;
+        let aiSuggestions = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadJobAnalysis();
+            loadResumeContent();
+            initializeInlineEditing();
+            // Auto-generate AI suggestions on page load as per user requirements
+            setTimeout(() => {
+                generateAISuggestions();
+            }, 1000); // Wait 1 second for other content to load first
+        });
+
+        // Load job analysis data
+        async function loadJobAnalysis() {
+            try {
+                const response = await fetch('/api/analyze_job');
+                if (!response.ok) throw new Error('Failed to load job analysis');
+                
+                jobAnalysisData = await response.json();
+                updateJobAnalysisDisplay(jobAnalysisData);
+            } catch (error) {
+                console.error('Error loading job analysis:', error);
+                showError('Failed to load job analysis data');
+            }
+        }
+
+        // Load resume content
+        async function loadResumeContent() {
+            try {
+                const response = await fetch('/api/optimize_resume');
+                if (!response.ok) throw new Error('Failed to load resume content');
+                
+                resumeData = await response.json();
+                updateResumeDisplay(resumeData);
+            } catch (error) {
+                console.error('Error loading resume content:', error);
+                showError('Failed to load resume content');
+            }
+        }
+
+        // Update job analysis display
+        function updateJobAnalysisDisplay(data) {
+            // Overall score
+            const scoreElement = document.querySelector('#overallScore .score-value');
+            scoreElement.textContent = (data.overall_score * 100).toFixed(0) + '%';
+
+            // Job information
+            const jobInfoElement = document.getElementById('jobInfo');
+            jobInfoElement.innerHTML = `
+                <div class="job-title">${data.job_info.title}</div>
+                <div class="company-name">${data.job_info.company}</div>
+                <div class="job-location">${data.job_info.location}</div>
+                <div class="job-location">${data.job_info.salary_range}</div>
+            `;
+
+            // Company information
+            const companyElement = document.getElementById('companyInfo');
+            companyElement.innerHTML = `
+                <h3>Company Overview</h3>
+                <div><strong>${data.company_summary.name}</strong></div>
+                <div>${data.company_summary.industry} | ${data.company_summary.size}</div>
+                <div>${data.company_summary.stage} | ${data.company_summary.funding}</div>
+                <p style="margin-top: 10px;">${data.company_summary.description}</p>
+            `;
+
+            // Keywords
+            const matchedElement = document.getElementById('matchedKeywords');
+            matchedElement.innerHTML = data.keyword_analysis.matched_keywords
+                .map(keyword => `<span class="keyword-tag matched">${keyword}</span>`)
+                .join('');
+
+            const missingElement = document.getElementById('missingKeywords');
+            missingElement.innerHTML = data.keyword_analysis.missing_keywords
+                .map(keyword => `<span class="keyword-tag missing">${keyword}</span>`)
+                .join('');
+
+            // Job summary
+            const summaryElement = document.getElementById('jobSummary');
+            summaryElement.innerHTML = `
+                <h3>Job Summary</h3>
+                <p><strong>Role Focus:</strong> ${data.job_summary.role_focus}</p>
+                <p><strong>Key Requirements:</strong> ${data.job_summary.key_requirements}</p>
+                <p><strong>Company Culture:</strong> ${data.job_summary.company_culture}</p>
+            `;
+        }
+
+        // Update resume display
+        function updateResumeDisplay(data) {
+            // Personal Information
+            const personalElement = document.getElementById('personalInfo');
+            personalElement.innerHTML = `
+                <h3>${data.personal_info.name}</h3>
+                <div>${data.personal_info.location} | ${data.personal_info.phone} | ${data.personal_info.email}</div>
+                <div>LinkedIn: ${data.personal_info.linkedin} | Portfolio: ${data.personal_info.portfolio}</div>
+            `;
+
+            // Executive Summary
+            const executiveElement = document.getElementById('executiveSummary');
+            const execScore = getScoreBadge(data.executive_summary.score);
+            executiveElement.innerHTML = `
+                <h3>Executive Summary ${execScore}</h3>
+                <p class="editable-content" contenteditable="true" data-section="executive_summary" data-original="${data.executive_summary.content.replace(/"/g, '&quot;')}">${data.executive_summary.content}</p>
+            `;
+
+            // Strategic Impact
+            const strategicElement = document.getElementById('strategicImpact');
+            const strategicHtml = data.strategic_impact.map((item, index) => `
+                <div class="bullet-point" draggable="true" data-section="strategic_impact" data-index="${index}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                    <div class="drag-handle">⋮⋮</div>
+                    <input type="checkbox" class="bullet-checkbox" checked>
+                    <div class="bullet-content">
+                        <div class="bullet-text editable-content" contenteditable="true" data-section="strategic_impact" data-index="${index}" data-original="${item.text.replace(/"/g, '&quot;')}">${item.text}</div>
+                        <div class="bullet-meta">
+                            <span class="category-label">${item.categories[0]}</span>
+                            <span class="bullet-score">${(item.score * 100).toFixed(0)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            strategicElement.innerHTML = `
+                <h3>Strategic Impact ${getScoreBadge(data.strategic_impact[0]?.score || 0.8)}</h3>
+                ${strategicHtml}
+            `;
+
+            // Professional Experience
+            const experienceElement = document.getElementById('professionalExperience');
+            const experienceHtml = data.professional_experience.map((job, jobIndex) => `
+                <div class="job-entry">
+                    <div class="job-header">
+                        <input type="checkbox" class="job-checkbox" data-section="professional_experience" data-job-index="${jobIndex}" onchange="toggleJob(this)" checked>
+                        <div class="job-header-content">
+                            <h4 class="editable-content" contenteditable="true" data-section="professional_experience" data-job-index="${jobIndex}" data-field="title" data-original="${job.title.replace(/"/g, '&quot;')}">${job.title}</h4>
+                            <div class="job-meta">
+                                <span class="editable-content" contenteditable="true" data-section="professional_experience" data-job-index="${jobIndex}" data-field="company" data-original="${job.company.replace(/"/g, '&quot;')}">${job.company}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="professional_experience" data-job-index="${jobIndex}" data-field="location" data-original="${job.location.replace(/"/g, '&quot;')}">${job.location}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="professional_experience" data-job-index="${jobIndex}" data-field="dates" data-original="${job.start_date} - ${job.end_date}">${job.start_date} - ${job.end_date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${job.bullets.map((bullet, bulletIndex) => `
+                        <div class="bullet-point" draggable="true" data-section="professional_experience" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                            <div class="drag-handle">⋮⋮</div>
+                            <input type="checkbox" class="bullet-checkbox" checked>
+                            <div class="bullet-content">
+                                <div class="bullet-text editable-content" contenteditable="true" data-section="professional_experience" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" data-original="${bullet.text.replace(/"/g, '&quot;')}">${bullet.text}</div>
+                                <div class="bullet-meta">
+                                    <span class="category-label">${bullet.categories[0]}</span>
+                                    <span class="bullet-score">${(bullet.score * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <button class="add-task-btn" onclick="openAddTaskModal(this.parentElement)">+ Add Task</button>
+                </div>
+            `).join('');
+
+            experienceElement.innerHTML = `
+                <h3>Professional Experience ${getScoreBadge(data.section_scores.professional_experience)}</h3>
+                ${experienceHtml}
+            `;
+
+            // Early Career Roles
+            const earlyCareerElement = document.getElementById('earlyCareerRoles');
+            const earlyCareerHtml = data.early_career_experience.map((job, jobIndex) => `
+                <div class="job-entry">
+                    <div class="job-header">
+                        <input type="checkbox" class="job-checkbox" data-section="early_career" data-job-index="${jobIndex}" onchange="toggleJob(this)">
+                        <div class="job-header-content">
+                            <h4 class="editable-content" contenteditable="true" data-section="early_career" data-job-index="${jobIndex}" data-field="title" data-original="${job.title.replace(/"/g, '&quot;')}">${job.title}</h4>
+                            <div class="job-meta">
+                                <span class="editable-content" contenteditable="true" data-section="early_career" data-job-index="${jobIndex}" data-field="company" data-original="${job.company.replace(/"/g, '&quot;')}">${job.company}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="early_career" data-job-index="${jobIndex}" data-field="location" data-original="${job.location.replace(/"/g, '&quot;')}">${job.location}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="early_career" data-job-index="${jobIndex}" data-field="dates" data-original="${job.start_date} - ${job.end_date}">${job.start_date} - ${job.end_date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${job.bullets.map((bullet, bulletIndex) => `
+                        <div class="bullet-point" draggable="true" data-section="early_career" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                            <div class="drag-handle">⋮⋮</div>
+                            <input type="checkbox" class="bullet-checkbox">
+                            <div class="bullet-content">
+                                <div class="bullet-text editable-content" contenteditable="true" data-section="early_career" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" data-original="${bullet.text.replace(/"/g, '&quot;')}">${bullet.text}</div>
+                                <div class="bullet-meta">
+                                    <span class="category-label">${bullet.categories[0]}</span>
+                                    <span class="bullet-score">${(bullet.score * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <button class="add-task-btn" onclick="openAddTaskModal(this.parentElement)">+ Add Task</button>
+                </div>
+            `).join('');
+
+            earlyCareerElement.innerHTML = earlyCareerHtml;
+
+            // Additional Experience
+            const additionalElement = document.getElementById('additionalExperience');
+            const additionalHtml = data.additional_experience.map((job, jobIndex) => `
+                <div class="job-entry">
+                    <div class="job-header">
+                        <input type="checkbox" class="job-checkbox" data-section="additional_experience" data-job-index="${jobIndex}" onchange="toggleJob(this)">
+                        <div class="job-header-content">
+                            <h4 class="editable-content" contenteditable="true" data-section="additional_experience" data-job-index="${jobIndex}" data-field="title" data-original="${job.title.replace(/"/g, '&quot;')}">${job.title}</h4>
+                            <div class="job-meta">
+                                <span class="editable-content" contenteditable="true" data-section="additional_experience" data-job-index="${jobIndex}" data-field="company" data-original="${job.company.replace(/"/g, '&quot;')}">${job.company}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="additional_experience" data-job-index="${jobIndex}" data-field="location" data-original="${job.location.replace(/"/g, '&quot;')}">${job.location}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="additional_experience" data-job-index="${jobIndex}" data-field="dates" data-original="${job.start_date} - ${job.end_date}">${job.start_date} - ${job.end_date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${job.bullets.map((bullet, bulletIndex) => `
+                        <div class="bullet-point" draggable="true" data-section="additional_experience" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                            <div class="drag-handle">⋮⋮</div>
+                            <input type="checkbox" class="bullet-checkbox">
+                            <div class="bullet-content">
+                                <div class="bullet-text editable-content" contenteditable="true" data-section="additional_experience" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" data-original="${bullet.text.replace(/"/g, '&quot;')}">${bullet.text}</div>
+                                <div class="bullet-meta">
+                                    <span class="category-label">${bullet.categories[0]}</span>
+                                    <span class="bullet-score">${(bullet.score * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <button class="add-task-btn" onclick="openAddTaskModal(this.parentElement)">+ Add Task</button>
+                </div>
+            `).join('');
+
+            additionalElement.innerHTML = additionalHtml;
+
+            // Community Leadership & Networks
+            const communityElement = document.getElementById('communityLeadership');
+            const communityHtml = data.community_leadership.map((job, jobIndex) => `
+                <div class="job-entry">
+                    <div class="job-header">
+                        <input type="checkbox" class="job-checkbox" data-section="community_leadership" data-job-index="${jobIndex}" onchange="toggleJob(this)">
+                        <div class="job-header-content">
+                            <h4 class="editable-content" contenteditable="true" data-section="community_leadership" data-job-index="${jobIndex}" data-field="title" data-original="${job.title.replace(/"/g, '&quot;')}">${job.title}</h4>
+                            <div class="job-meta">
+                                <span class="editable-content" contenteditable="true" data-section="community_leadership" data-job-index="${jobIndex}" data-field="company" data-original="${job.company.replace(/"/g, '&quot;')}">${job.company}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="community_leadership" data-job-index="${jobIndex}" data-field="location" data-original="${job.location.replace(/"/g, '&quot;')}">${job.location}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="community_leadership" data-job-index="${jobIndex}" data-field="dates" data-original="${job.start_date} - ${job.end_date}">${job.start_date} - ${job.end_date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${job.bullets.map((bullet, bulletIndex) => `
+                        <div class="bullet-point" draggable="true" data-section="community_leadership" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                            <div class="drag-handle">⋮⋮</div>
+                            <input type="checkbox" class="bullet-checkbox">
+                            <div class="bullet-content">
+                                <div class="bullet-text editable-content" contenteditable="true" data-section="community_leadership" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" data-original="${bullet.text.replace(/"/g, '&quot;')}">${bullet.text}</div>
+                                <div class="bullet-meta">
+                                    <span class="category-label">${bullet.categories[0]}</span>
+                                    <span class="bullet-score">${(bullet.score * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <button class="add-task-btn" onclick="openAddTaskModal(this.parentElement)">+ Add Task</button>
+                </div>
+            `).join('');
+
+            communityElement.innerHTML = communityHtml;
+
+            // Skills & Expertise
+            const skillsElement = document.getElementById('skillsExpertise');
+            const skillsHtml = data.skills_expertise.map(skill => `
+                <div class="skill-item">
+                    <div class="skill-name">${skill.skill}</div>
+                    <div class="skill-level">${skill.proficiency} (${skill.years})</div>
+                </div>
+            `).join('');
+
+            skillsElement.innerHTML = `
+                <h3>Skills & Expertise ${getScoreBadge(0.85)}</h3>
+                <div class="skills-grid">${skillsHtml}</div>
+            `;
+
+            // Education
+            const educationElement = document.getElementById('education');
+            const educationHtml = data.education.map(edu => `
+                <div class="bullet-point">
+                    <input type="checkbox" class="bullet-checkbox" checked>
+                    <div class="bullet-content">
+                        <div class="bullet-text"><strong>${edu.degree}</strong> - ${edu.institution} (${edu.year})</div>
+                        <div class="bullet-meta">
+                            <span class="category-label">${edu.honors}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            educationElement.innerHTML = `
+                <h3>Education ${getScoreBadge(0.72)}</h3>
+                ${educationHtml}
+            `;
+
+            // Certifications
+            const certificationsElement = document.getElementById('certifications');
+            const certificationsHtml = data.certifications.map(cert => `
+                <div class="bullet-point">
+                    <input type="checkbox" class="bullet-checkbox" checked>
+                    <div class="bullet-content">
+                        <div class="bullet-text">${cert.name} - ${cert.issuer} (${cert.year})</div>
+                    </div>
+                </div>
+            `).join('');
+
+            certificationsElement.innerHTML = `
+                <h3>Certifications ${getScoreBadge(0.85)}</h3>
+                ${certificationsHtml}
+            `;
+        }
+
+        // Generate AI suggestions
+        async function generateAISuggestions() {
+            try {
+                const response = await fetch('/api/generate_suggestions');
+                if (!response.ok) throw new Error('Failed to generate AI suggestions');
+                
+                aiSuggestions = await response.json();
+                displayAISuggestions(aiSuggestions);
+            } catch (error) {
+                console.error('Error generating AI suggestions:', error);
+                showError('Failed to generate AI suggestions');
+            }
+        }
+
+        // Display AI suggestions
+        function displayAISuggestions(suggestions) {
+            console.log('Displaying AI suggestions:', suggestions);
+            
+            // FIRST: Remove ALL existing AI suggestions to prevent duplicates
+            const allExistingAISuggestions = document.querySelectorAll('.ai-suggestion');
+            allExistingAISuggestions.forEach(suggestion => suggestion.remove());
+            
+            // Section ID mapping for section-level suggestions
+            const sectionMapping = {
+                'executive_summary': 'executiveSummary',
+                'strategic_impact': 'strategicImpact'
+            };
+            
+            // Job ID mapping to match backend job IDs with frontend job titles
+            const jobMapping = {
+                // Professional Experience jobs
+                'professional_founder_organizer': 'Founder & Organizer',
+                'professional_customer_experience_manager': 'Customer Experience Project Manager',
+                'professional_startup_founder': 'Startup Founder & Construction Manager',
+                'professional_senior_program_manager': 'Senior Program Manager',
+                'professional_technical_project_manager': 'Technical Project Manager',
+                'professional_technology_consultant': 'Technology Consultant / Epic Systems Analyst',
+                'professional_it_application_manager': 'IT Application Manager',
+                'professional_revenue_cycle_manager': 'Revenue Cycle Project Manager',
+                // Early Career Roles (note: backend shows no early career jobs currently)
+                'early_career_program_management': 'Program & Project Management',
+                // Additional Experience jobs
+                'additional_property_operations': 'Leasing Manager & Property Operations',
+                // Community Leadership jobs
+                'community_bay_area_connectors': 'Founder & Organizer',
+                'community_league_commissioner': 'League Commissioner',
+                'community_founder_executive_director': 'Founder & Executive Director',
+                'community_board_communications': 'Board Member – Director of Communications'
+            };
+
+            // Add section-level AI suggestions (Executive Summary, Strategic Impact)
+            if (suggestions.suggestions_by_section) {
+                Object.keys(suggestions.suggestions_by_section).forEach(sectionId => {
+                    const sectionSuggestions = suggestions.suggestions_by_section[sectionId];
+                    const targetElementId = sectionMapping[sectionId];
+                    
+                    if (targetElementId) {
+                        const targetElement = document.getElementById(targetElementId);
+                        if (targetElement) {
+                            // Limit to 3 suggestions for sections too
+                            sectionSuggestions.slice(0, 3).forEach(suggestion => {
+                                const suggestionHtml = `
+                                    <div class="bullet-point ai-suggestion">
+                                        <input type="checkbox" class="bullet-checkbox" data-ai-suggestion="true">
+                                        <div class="bullet-content">
+                                            <div class="bullet-text">${suggestion.text}</div>
+                                            <div class="bullet-meta">
+                                                <span class="category-label">${suggestion.category}</span>
+                                                <span class="bullet-score">${(suggestion.score * 100).toFixed(0)}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                targetElement.insertAdjacentHTML('beforeend', suggestionHtml);
+                            });
+                        } else {
+                            console.warn(`Could not find section element for: ${targetElementId}`);
+                        }
+                    }
+                });
+            }
+
+            // Add job-level AI suggestions (Professional Experience, Early Career, Additional Experience, Community Leadership)
+            if (suggestions.suggestions_by_job) {
+                console.log('Processing job-level AI suggestions for jobs:', Object.keys(suggestions.suggestions_by_job));
+                Object.keys(suggestions.suggestions_by_job).forEach(jobId => {
+                    const jobSuggestions = suggestions.suggestions_by_job[jobId];
+                    const jobTitle = jobMapping[jobId];
+                    
+                    console.log(`Processing job ID: ${jobId}, mapped title: ${jobTitle}`);
+                    
+                    if (jobTitle) {
+                        // Determine which section this job belongs to based on job ID prefix
+                        let targetSection = null;
+                        if (jobId.startsWith('professional_')) {
+                            targetSection = document.getElementById('professionalExperience');
+                        } else if (jobId.startsWith('early_career_')) {
+                            targetSection = document.getElementById('earlyCareerRoles');
+                        } else if (jobId.startsWith('additional_')) {
+                            targetSection = document.getElementById('additionalExperience');
+                        } else if (jobId.startsWith('community_')) {
+                            targetSection = document.getElementById('communityLeadership');
+                        }
+                        
+                        if (targetSection) {
+                            console.log(`Looking for job "${jobTitle}" in section: ${targetSection.id}`);
+                            // Find the job entry within the specific section by looking for the job title
+                            const jobHeaders = targetSection.querySelectorAll('.job-entry h4');
+                            let targetJobElement = null;
+                            
+                            console.log(`Found ${jobHeaders.length} job headers in section:`, Array.from(jobHeaders).map(h => h.textContent.trim()));
+                            
+                            jobHeaders.forEach(header => {
+                                const headerText = header.textContent.trim();
+                                console.log(`Comparing "${headerText}" with "${jobTitle}"`);
+                                if (headerText === jobTitle) {
+                                    targetJobElement = header.closest('.job-entry');
+                                    console.log(`Found matching job element for: ${jobTitle}`);
+                                }
+                            });
+                            
+                            if (targetJobElement) {
+                                // Extract section name and job index from DOM context
+                                let sectionName = '';
+                                if (jobId.startsWith('professional_')) {
+                                    sectionName = 'professional_experience';
+                                } else if (jobId.startsWith('early_career_')) {
+                                    sectionName = 'early_career';
+                                } else if (jobId.startsWith('additional_')) {
+                                    sectionName = 'additional_experience';
+                                } else if (jobId.startsWith('community_')) {
+                                    sectionName = 'community_leadership';
+                                }
+                                
+                                // Find the job index by counting previous job entries in the same section
+                                const allJobsInSection = targetSection.querySelectorAll('.job-entry');
+                                let jobIndex = 0;
+                                for (let i = 0; i < allJobsInSection.length; i++) {
+                                    if (allJobsInSection[i] === targetJobElement) {
+                                        jobIndex = i;
+                                        break;
+                                    }
+                                }
+                                
+                                // Add AI suggestions to this specific job (limit to 3)
+                                jobSuggestions.slice(0, 3).forEach((suggestion, suggestionIndex) => {
+                                    const suggestionHtml = `
+                                        <div class="bullet-point ai-suggestion" draggable="true" data-section="${sectionName}" data-job-index="${jobIndex}" data-bullet-index="ai-${suggestionIndex}" data-ai-suggestion="true" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                                            <div class="drag-handle">⋮⋮</div>
+                                            <input type="checkbox" class="bullet-checkbox" data-ai-suggestion="true">
+                                            <div class="bullet-content">
+                                                <div class="bullet-text">${suggestion.text}</div>
+                                                <div class="bullet-meta">
+                                                    <span class="category-label">${suggestion.category}</span>
+                                                    <span class="bullet-score">${(suggestion.score * 100).toFixed(0)}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    targetJobElement.insertAdjacentHTML('beforeend', suggestionHtml);
+                                });
+                            } else {
+                                console.warn(`Could not find job element for: ${jobTitle} in section: ${targetSection.id}`);
+                            }
+                        } else {
+                            console.warn(`Could not determine section for job ID: ${jobId}`);
+                        }
+                    }
+                });
+            }
+
+            // Show success message
+            showSuccess(`Generated ${suggestions.total_suggestions} AI suggestions incorporating missing keywords`);
+        }
+
+        // Utility functions
+        function getScoreBadge(score) {
+            const percentage = (score * 100).toFixed(0);
+            let className = 'score-badge';
+            if (score < 0.5) className += ' low';
+            else if (score < 0.8) className += ' medium';
+            
+            return `<span class="${className}">${percentage}%</span>`;
+        }
+
+        function showError(message) {
+            console.error(message);
+            // Could add toast notification here
+        }
+
+        function showSuccess(message) {
+            console.log(message);
+            // Could add toast notification here
+        }
+
+        // Button handlers
+        function resetToBaseline() {
+            if (confirm('Reset all changes to baseline resume?')) {
+                location.reload();
+            }
+        }
+
+        function saveToBaseline() {
+            if (confirm('Save current changes as new baseline?')) {
+                showSuccess('Baseline saved successfully');
+            }
+        }
+
+        // Inline Editing Functionality
+        function initializeInlineEditing() {
+            // Add event listeners for all editable content
+            document.addEventListener('blur', handleEditableBlur, true);
+            document.addEventListener('focus', handleEditableFocus, true);
+            document.addEventListener('keydown', handleEditableKeydown);
+            document.addEventListener('input', handleEditableInput);
+        }
+
+        function handleEditableInput(event) {
+            if (event.target.classList.contains('editable-content')) {
+                const original = event.target.getAttribute('data-original');
+                const current = event.target.textContent || event.target.innerText;
+                
+                if (current !== original) {
+                    event.target.classList.add('modified');
+                } else {
+                    event.target.classList.remove('modified');
+                }
+            }
+        }
+
+        function handleEditableKeydown(event) {
+            if (event.target.classList.contains('editable-content')) {
+                // Save on Enter for single-line fields only
+                if (event.key === 'Enter') {
+                    // For single-line fields (job titles, company, location, dates), save on Enter
+                    if (event.target.tagName === 'H4' || event.target.tagName === 'SPAN') {
+                        event.preventDefault();
+                        saveEditableContent(event.target);
+                    }
+                    // For multi-line fields (bullet points), don't save on Enter - use buttons instead
+                }
+                
+                // Reset on Escape
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    resetEditableContent(event.target);
+                    hideEditButtons(event.target);
+                    event.target.blur();
+                }
+            }
+        }
+
+        function handleEditableBlur(event) {
+            // Don't auto-save for multi-line fields - let user use buttons
+            if (event.target.classList.contains('editable-content') && event.target.classList.contains('modified')) {
+                // Only auto-save for single-line fields (H4, SPAN)
+                if (event.target.tagName === 'H4' || event.target.tagName === 'SPAN') {
+                    saveEditableContent(event.target);
+                }
+                // For multi-line fields (DIV), keep the buttons visible
+            }
+        }
+
+        function handleEditableFocus(event) {
+            if (event.target.classList.contains('editable-content')) {
+                // Show buttons for multi-line fields (bullet points)
+                if (event.target.tagName === 'DIV' && event.target.classList.contains('bullet-text')) {
+                    showEditButtons(event.target);
+                }
+            }
+        }
+
+        function saveEditableContent(element) {
+            const section = element.getAttribute('data-section');
+            const content = element.textContent || element.innerText;
+            
+            // Prepare save data based on section type
+            const saveData = {
+                section: section,
+                content: content
+            };
+
+            // Add additional data attributes based on element type
+            if (element.hasAttribute('data-index')) {
+                saveData.index = element.getAttribute('data-index');
+            }
+            if (element.hasAttribute('data-job-index')) {
+                saveData.jobIndex = element.getAttribute('data-job-index');
+            }
+            if (element.hasAttribute('data-bullet-index')) {
+                saveData.bulletIndex = element.getAttribute('data-bullet-index');
+            }
+            if (element.hasAttribute('data-field')) {
+                saveData.field = element.getAttribute('data-field');
+            }
+
+            // Send save request to backend
+            fetch('/api/save_content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(saveData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update original data attribute
+                    element.setAttribute('data-original', content);
+                    element.classList.remove('modified');
+                    
+                    // Hide edit buttons for multi-line fields
+                    hideEditButtons(element);
+                    
+                    // Remove focus to complete the editing process
+                    element.blur();
+                    
+                    // Clear any selection
+                    if (window.getSelection) {
+                        window.getSelection().removeAllRanges();
+                    }
+                    
+                    showSaveNotification('Content saved successfully');
+                } else {
+                    showError('Failed to save content: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+                showError('Failed to save content');
+            });
+        }
+
+        function resetEditableContent(element) {
+            const original = element.getAttribute('data-original');
+            element.textContent = original;
+            element.classList.remove('modified');
+        }
+
+        function showSaveNotification(message) {
+            // Remove existing notification
+            const existing = document.querySelector('.save-notification');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Create and show new notification
+            const notification = document.createElement('div');
+            notification.className = 'save-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // Hide notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function showEditButtons(element) {
+            // Remove any existing edit buttons
+            hideAllEditButtons();
+            
+            // Create edit buttons container
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'edit-buttons show';
+            buttonsContainer.innerHTML = `
+                <button class="edit-btn save" onclick="saveEditableContent(this.parentElement.previousElementSibling)">Save</button>
+                <button class="edit-btn cancel" onclick="cancelEdit(this.parentElement.previousElementSibling)">Cancel</button>
+            `;
+            
+            // Insert buttons after the editable element
+            element.parentElement.insertBefore(buttonsContainer, element.nextSibling);
+        }
+
+        function hideEditButtons(element) {
+            // Find and remove edit buttons for this element
+            const buttonsContainer = element.parentElement.querySelector('.edit-buttons');
+            if (buttonsContainer) {
+                buttonsContainer.remove();
+            }
+        }
+
+        function hideAllEditButtons() {
+            // Remove all edit buttons from the page
+            const allButtons = document.querySelectorAll('.edit-buttons');
+            allButtons.forEach(buttons => buttons.remove());
+        }
+
+        function cancelEdit(element) {
+            resetEditableContent(element);
+            hideEditButtons(element);
+            element.blur();
+        }
+
+        // Section-level checkbox functionality
+        function toggleSection(sectionCheckbox) {
+            const section = sectionCheckbox.getAttribute('data-section');
+            const isChecked = sectionCheckbox.checked;
+            
+            // Find the section element
+            let sectionElement;
+            if (section === 'early_career') {
+                sectionElement = document.getElementById('earlyCareerRoles');
+            } else if (section === 'additional_experience') {
+                sectionElement = document.getElementById('additionalExperience');
+            } else if (section === 'community_leadership') {
+                sectionElement = document.getElementById('communityLeadership');
+            }
+            
+            if (sectionElement) {
+                // Toggle all job checkboxes and bullet checkboxes in this section
+                const jobCheckboxes = sectionElement.querySelectorAll('.job-checkbox');
+                const bulletCheckboxes = sectionElement.querySelectorAll('.bullet-checkbox');
+                
+                jobCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                
+                bulletCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                
+                console.log(`Section ${section} ${isChecked ? 'checked' : 'unchecked'} - toggled ${jobCheckboxes.length} jobs and ${bulletCheckboxes.length} bullets`);
+            }
+        }
+
+        // Job-level checkbox functionality
+        function toggleJob(jobCheckbox) {
+            const section = jobCheckbox.getAttribute('data-section');
+            const jobIndex = jobCheckbox.getAttribute('data-job-index');
+            const isChecked = jobCheckbox.checked;
+            
+            // Find the job entry element
+            const jobEntry = jobCheckbox.closest('.job-entry');
+            
+            if (jobEntry) {
+                // Toggle all bullet checkboxes in this specific job
+                const bulletCheckboxes = jobEntry.querySelectorAll('.bullet-checkbox');
+                bulletCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                
+                console.log(`Job ${section}[${jobIndex}] ${isChecked ? 'checked' : 'unchecked'} - toggled ${bulletCheckboxes.length} bullets`);
+            }
+        }
+
+        // Drag and drop functionality
+        let draggedElement = null;
+        let draggedData = null;
+
+        function handleDragStart(event) {
+            draggedElement = event.target;
+            draggedData = {
+                section: event.target.getAttribute('data-section'),
+                jobIndex: event.target.getAttribute('data-job-index'),
+                bulletIndex: event.target.getAttribute('data-bullet-index'),
+                index: event.target.getAttribute('data-index')
+            };
+            
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/html', event.target.outerHTML);
+            
+            console.log('Drag started:', draggedData);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            
+            // Only allow dropping on bullet points in the same section and job
+            const targetSection = event.target.closest('.bullet-point')?.getAttribute('data-section');
+            const targetJobIndex = event.target.closest('.bullet-point')?.getAttribute('data-job-index');
+            
+            if (draggedData && targetSection === draggedData.section && 
+                (targetJobIndex === draggedData.jobIndex || draggedData.section === 'strategic_impact')) {
+                event.target.closest('.bullet-point')?.classList.add('drag-over');
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            
+            const targetElement = event.target.closest('.bullet-point');
+            if (!targetElement || !draggedElement || targetElement === draggedElement) {
+                return;
+            }
+            
+            const targetSection = targetElement.getAttribute('data-section');
+            const targetJobIndex = targetElement.getAttribute('data-job-index');
+            
+            // Only allow dropping within the same section and job (or strategic impact)
+            if (targetSection === draggedData.section && 
+                (targetJobIndex === draggedData.jobIndex || draggedData.section === 'strategic_impact')) {
+                
+                // Get the parent container
+                const container = targetElement.parentNode;
+                
+                // Determine drop position
+                const rect = targetElement.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                
+                if (event.clientY < midpoint) {
+                    // Insert before target
+                    container.insertBefore(draggedElement, targetElement);
+                } else {
+                    // Insert after target
+                    container.insertBefore(draggedElement, targetElement.nextSibling);
+                }
+                
+                // Update data attributes to reflect new order
+                updateBulletIndices(container, draggedData.section, draggedData.jobIndex);
+                
+                console.log('Bullet reordered in:', draggedData.section, draggedData.jobIndex || 'N/A');
+            }
+            
+            // Clean up drag over styling
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragEnd(event) {
+            event.target.classList.remove('dragging');
+            
+            // Clean up drag over styling
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+            
+            draggedElement = null;
+            draggedData = null;
+        }
+
+        function updateBulletIndices(container, section, jobIndex) {
+            const bullets = container.querySelectorAll('.bullet-point');
+            bullets.forEach((bullet, newIndex) => {
+                if (section === 'strategic_impact') {
+                    bullet.setAttribute('data-index', newIndex);
+                    const editableContent = bullet.querySelector('.editable-content');
+                    if (editableContent) {
+                        editableContent.setAttribute('data-index', newIndex);
+                    }
+                } else {
+                    bullet.setAttribute('data-bullet-index', newIndex);
+                    const editableContent = bullet.querySelector('.editable-content');
+                    if (editableContent) {
+                        editableContent.setAttribute('data-bullet-index', newIndex);
+                    }
+                }
+            });
+        }
+
+        // Modal handling functions
+        let currentSection = '';
+        let currentJobElement = null;
+
+        function openAddJobModal(section) {
+            currentSection = section;
+            document.getElementById('addJobModal').classList.add('show');
+            document.getElementById('jobTitle').focus();
+        }
+
+        function openAddTaskModal(jobElement) {
+            currentJobElement = jobElement;
+            document.getElementById('addTaskModal').classList.add('show');
+            document.getElementById('taskText').focus();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            // Clear form data
+            if (modalId === 'addJobModal') {
+                document.getElementById('addJobForm').reset();
+            } else if (modalId === 'addTaskModal') {
+                document.getElementById('addTaskForm').reset();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target.id);
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const openModal = document.querySelector('.modal.show');
+                if (openModal) {
+                    closeModal(openModal.id);
+                }
+            }
+        });
+
+        // Form submission handlers
+        document.getElementById('addJobForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const jobData = {
+                title: formData.get('jobTitle'),
+                company: formData.get('jobCompany'),
+                location: formData.get('jobLocation'),
+                start_date: formData.get('jobStartDate'),
+                end_date: formData.get('jobEndDate'),
+                initialTasks: formData.get('initialTasks')
+            };
+            
+            addNewJob(currentSection, jobData);
+            closeModal('addJobModal');
+        });
+
+        document.getElementById('addTaskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const taskData = {
+                text: formData.get('taskText'),
+                category: formData.get('taskCategory') || 'General'
+            };
+            
+            addNewTask(currentJobElement, taskData);
+            closeModal('addTaskModal');
+        });
+
+        function addNewJob(section, jobData) {
+            const sectionElement = getSectionElement(section);
+            if (!sectionElement) return;
+            
+            // Get current job count for indexing
+            const existingJobs = sectionElement.querySelectorAll('.job-entry');
+            const jobIndex = existingJobs.length;
+            
+            // Process initial tasks if provided
+            let bulletsHtml = '';
+            if (jobData.initialTasks && jobData.initialTasks.trim()) {
+                const tasks = jobData.initialTasks.split('\n').filter(task => task.trim());
+                bulletsHtml = tasks.map((task, bulletIndex) => `
+                    <div class="bullet-point" draggable="true" data-section="${section}" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                        <div class="drag-handle">⋮⋮</div>
+                        <input type="checkbox" class="bullet-checkbox" ${section === 'professional_experience' ? 'checked' : ''}>
+                        <div class="bullet-content">
+                            <div class="bullet-text editable-content" contenteditable="true" data-section="${section}" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" data-original="${task.trim()}">${task.trim()}</div>
+                            <div class="bullet-meta">
+                                <span class="category-label">General</span>
+                                <span class="bullet-score">100%</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Create job HTML
+            const jobHtml = `
+                <div class="job-entry">
+                    <div class="job-header">
+                        ${section !== 'professional_experience' ? `<input type="checkbox" class="job-checkbox" data-section="${section}" data-job-index="${jobIndex}" onchange="toggleJob(this)">` : ''}
+                        <div class="job-header-content">
+                            <h4 class="editable-content" contenteditable="true" data-section="${section}" data-job-index="${jobIndex}" data-field="title" data-original="${jobData.title}">${jobData.title}</h4>
+                            <div class="job-meta">
+                                <span class="editable-content" contenteditable="true" data-section="${section}" data-job-index="${jobIndex}" data-field="company" data-original="${jobData.company}">${jobData.company}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="${section}" data-job-index="${jobIndex}" data-field="location" data-original="${jobData.location}">${jobData.location}</span> | 
+                                <span class="editable-content" contenteditable="true" data-section="${section}" data-job-index="${jobIndex}" data-field="dates" data-original="${jobData.start_date} - ${jobData.end_date}">${jobData.start_date} - ${jobData.end_date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${bulletsHtml}
+                    <button class="add-task-btn" onclick="openAddTaskModal(this.parentElement)">+ Add Task</button>
+                </div>
+            `;
+            
+            sectionElement.insertAdjacentHTML('beforeend', jobHtml);
+            showSaveNotification('New job added successfully');
+        }
+
+        function addNewTask(jobElement, taskData) {
+            if (!jobElement) return;
+            
+            // Get section and job index from job element
+            const section = jobElement.querySelector('[data-section]')?.getAttribute('data-section') || 'professional_experience';
+            const jobIndex = jobElement.querySelector('[data-job-index]')?.getAttribute('data-job-index') || '0';
+            
+            // Get current bullet count for indexing
+            const existingBullets = jobElement.querySelectorAll('.bullet-point');
+            const bulletIndex = existingBullets.length;
+            
+            // Create task HTML
+            const taskHtml = `
+                <div class="bullet-point" draggable="true" data-section="${section}" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)">
+                    <div class="drag-handle">⋮⋮</div>
+                    <input type="checkbox" class="bullet-checkbox" ${section === 'professional_experience' ? 'checked' : ''}>
+                    <div class="bullet-content">
+                        <div class="bullet-text editable-content" contenteditable="true" data-section="${section}" data-job-index="${jobIndex}" data-bullet-index="${bulletIndex}" data-original="${taskData.text}">${taskData.text}</div>
+                        <div class="bullet-meta">
+                            <span class="category-label">${taskData.category}</span>
+                            <span class="bullet-score">100%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Insert before the Add Task button
+            const addTaskBtn = jobElement.querySelector('.add-task-btn');
+            addTaskBtn.insertAdjacentHTML('beforebegin', taskHtml);
+            showSaveNotification('New task added successfully');
+        }
+
+        function getSectionElement(section) {
+            switch(section) {
+                case 'professional_experience':
+                    return document.getElementById('professionalExperience');
+                case 'early_career':
+                    return document.getElementById('earlyCareerRoles');
+                case 'additional_experience':
+                    return document.getElementById('additionalExperience');
+                case 'community_leadership':
+                    return document.getElementById('communityLeadership');
+                default:
+                    return null;
+            }
+        }
+    </script>
+
+    <!-- Add Job Modal -->
+    <div id="addJobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Job</h3>
+                <button class="close-btn" onclick="closeModal('addJobModal')">&times;</button>
+            </div>
+            <form id="addJobForm">
+                <div class="form-group">
+                    <label for="jobTitle">Job Title *</label>
+                    <input type="text" id="jobTitle" name="jobTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobCompany">Company *</label>
+                    <input type="text" id="jobCompany" name="jobCompany" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobLocation">Location *</label>
+                    <input type="text" id="jobLocation" name="jobLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobStartDate">Start Date *</label>
+                    <input type="text" id="jobStartDate" name="jobStartDate" placeholder="e.g., Jan 2020" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobEndDate">End Date *</label>
+                    <input type="text" id="jobEndDate" name="jobEndDate" placeholder="e.g., Present, Dec 2023" required>
+                </div>
+                <div class="form-group">
+                    <label for="initialTasks">Initial Tasks (one per line)</label>
+                    <textarea id="initialTasks" name="initialTasks" placeholder="Enter initial bullet points, one per line (optional)"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addJobModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Task</h3>
+                <button class="close-btn" onclick="closeModal('addTaskModal')">&times;</button>
+            </div>
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label for="taskText">Task Description *</label>
+                    <textarea id="taskText" name="taskText" placeholder="Enter the task/bullet point description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskCategory">Category</label>
+                    <input type="text" id="taskCategory" name="taskCategory" placeholder="e.g., Leadership, Technical, Achievement">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addTaskModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

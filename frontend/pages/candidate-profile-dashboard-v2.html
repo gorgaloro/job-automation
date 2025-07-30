@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allen Walker - AI-Powered Program Leader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .profile-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .profile-header .title {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .editable {
+            border: 2px dashed transparent;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .editable:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .skill-category {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .skill-category h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 0.85em;
+        }
+
+        .skill-tag.expert {
+            background: #27ae60;
+        }
+
+        .skill-tag.advanced {
+            background: #3498db;
+        }
+
+        .skill-tag.new {
+            background: #e74c3c;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .achievement h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .achievement .metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .metric {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .preferences-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .salary-highlight {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .new-feature {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .new-feature::before {
+            content: "NEW!";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .preferences-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <h1>Allen Walker</h1>
+            <div class="title">AI-Powered Program Leader & Automation Strategist</div>
+            <div class="ai-badge">🤖 AI/ML Integration Expert</div>
+            <div class="ai-badge">🚀 Production Platform Developer</div>
+            <div class="ai-badge">⚡ 15+ Years Program Leadership</div>
+            
+            <div class="contact-info">
+                <a href="mailto:contact@example.com" class="contact-item">📧 contact@example.com</a>
+                <a href="tel:+1-555-0123" class="contact-item">📞 +1-555-0123</a>
+                <a href="https://linkedin.com/in/allenwalker" class="contact-item">💼 LinkedIn</a>
+                <a href="https://allenwalker.dev" class="contact-item">🌐 Portfolio</a>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('who-i-am')">Who I Am</button>
+            <button class="tab" onclick="showTab('what-im-looking-for')">What I'm Looking For</button>
+        </div>
+
+        <!-- Who I Am Tab -->
+        <div id="who-i-am" class="tab-content active">
+            <!-- Professional Summary -->
+            <div class="section">
+                <h3>Professional Summary</h3>
+                <div class="editable" onclick="editSummary()">
+                    <p><strong>Elevator Pitch:</strong> Senior program leader and AI-powered automation strategist with 15+ years transforming industries through technology innovation. Recently architected and deployed a comprehensive AI job search platform, demonstrating expertise in modern development workflows, AI/ML integration, and end-to-end system delivery.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Detailed Summary:</strong> I drive transformational change through systems thinking, AI integration, and hands-on technical execution. Combines healthcare domain expertise with cutting-edge technology development—leading $6B+ programs while personally building production-ready AI platforms. Recent work includes full-stack AI application development, Railway deployment, job board API integration, and comprehensive workflow automation.</p>
+                    
+                    <p style="margin-top: 15px;"><strong>Unique Value:</strong> Rare combination of large-scale program management expertise with hands-on AI/ML development capabilities and production deployment experience.</p>
+                </div>
+            </div>
+
+            <!-- Recent AI Platform Achievement -->
+            <div class="section new-feature">
+                <h3>🚀 Latest Achievement: AI Platform Development</h3>
+                <div class="achievement">
+                    <h4>AI-Powered Job Search Automation Platform (July 2025)</h4>
+                    <p>Independently conceived, architected, and deployed a comprehensive AI-powered job search automation platform from concept to production in just 4 weeks.</p>
+                    
+                    <div class="metrics">
+                        <div class="metric">🏗️ 10 Integrated Systems</div>
+                        <div class="metric">🔗 6 API Integrations</div>
+                        <div class="metric">📊 15,000+ Lines of Code</div>
+                        <div class="metric">☁️ 99.9% Uptime</div>
+                        <div class="metric">🎯 87% Match Accuracy</div>
+                        <div class="metric">⚡ 4-Week Delivery</div>
+                    </div>
+                    
+                    <p style="margin-top: 15px;"><strong>Technologies:</strong> Python, FastAPI, OpenAI GPT-4, PostgreSQL, Supabase, Railway, HTML/CSS/JS, Git, Docker, REST APIs, Async Programming, JSONB, AI/ML Integration</p>
+                </div>
+            </div>
+
+            <!-- Skills Grid -->
+            <div class="section">
+                <h3>Skills & Expertise</h3>
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <h4>🤖 AI/ML Development (NEW!)</h4>
+                        <span class="skill-tag new">OpenAI GPT-4 Integration</span>
+                        <span class="skill-tag new">AI Scoring Algorithms</span>
+                        <span class="skill-tag new">AI Prompt Engineering</span>
+                        <span class="skill-tag new">Machine Learning</span>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h4>💻 Backend Development (NEW!)</h4>
+                        <span class="skill-tag new">Python Development</span>
+                        <span class="skill-tag new">FastAPI</span>
+                        <span class="skill-tag new">API Development</span>
+                        <span class="skill-tag new">Async Programming</span>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h4>☁️ Cloud Infrastructure (NEW!)</h4>
+                        <span class="skill-tag new">Railway Deployment</span>
+                        <span class="skill-tag new">Production Systems</span>
+                        <span class="skill-tag new">DevOps</span>
+                        <span class="skill-tag new">PostgreSQL</span>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h4>📋 Program Management</h4>
+                        <span class="skill-tag expert">Program Leadership</span>
+                        <span class="skill-tag expert">Cross-functional Teams</span>
+                        <span class="skill-tag expert">Change Management</span>
+                        <span class="skill-tag expert">Technical Leadership</span>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h4>🏥 Healthcare Technology</h4>
+                        <span class="skill-tag expert">Epic Systems</span>
+                        <span class="skill-tag expert">Healthcare IT</span>
+                        <span class="skill-tag expert">Large-scale Implementation</span>
+                        <span class="skill-tag expert">$6B Program Delivery</span>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h4>💼 Revenue Operations</h4>
+                        <span class="skill-tag expert">Salesforce</span>
+                        <span class="skill-tag expert">HubSpot</span>
+                        <span class="skill-tag expert">RevOps Strategy</span>
+                        <span class="skill-tag expert">Workflow Automation</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Career Highlights -->
+            <div class="section">
+                <h3>Career Highlights</h3>
+                
+                <div class="achievement">
+                    <h4>$6B Epic Program Leadership (2022-2024)</h4>
+                    <p>Directed a $6B Epic program for 35,000+ users—drove timelines, delivered change, and met go-live with zero critical errors.</p>
+                    <div class="metrics">
+                        <div class="metric">💰 $6B Budget</div>
+                        <div class="metric">👥 35,000 Users</div>
+                        <div class="metric">✅ 100% Success Rate</div>
+                        <div class="metric">⏱️ 24-Month Timeline</div>
+                    </div>
+                </div>
+                
+                <div class="achievement">
+                    <h4>IT Portfolio Management (2020-2022)</h4>
+                    <p>Managed an IT portfolio serving 100K+ users—led vendor management, contract execution, and SLA accountability.</p>
+                    <div class="metrics">
+                        <div class="metric">👥 100,000 Users</div>
+                        <div class="metric">⚡ 99.9% Uptime</div>
+                        <div class="metric">💰 $2M Cost Savings</div>
+                        <div class="metric">🎯 SLA Excellence</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="section">
+                <h3>Export & Share</h3>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="exportProfile()">📄 Export Full Profile</button>
+                    <button class="btn btn-secondary" onclick="exportResume()">📋 Generate Resume</button>
+                    <button class="btn btn-success" onclick="exportAboutMe()">🌐 Create "About Me" Page</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- What I'm Looking For Tab -->
+        <div id="what-im-looking-for" class="tab-content">
+            <!-- Salary Expectations -->
+            <div class="salary-highlight new-feature">
+                💰 Updated Salary Range: $180,000 - $280,000 (Increased based on AI capabilities!)
+            </div>
+
+            <div class="preferences-form">
+                <!-- Target Roles -->
+                <div class="form-group">
+                    <label for="target-roles">🎯 Target Roles (Updated!)</label>
+                    <textarea id="target-roles" rows="6">Senior Program Manager - AI/Technology
+Technical Program Manager
+AI Platform Manager
+Revenue Operations Manager
+Director of Program Management
+Senior Manager - AI Integration
+Healthcare Technology Program Manager
+Technical Product Manager</textarea>
+                </div>
+
+                <!-- Industries -->
+                <div class="form-group">
+                    <label for="industries">🏭 Preferred Industries (Reordered by Priority)</label>
+                    <textarea id="industries" rows="6">AI/ML & Automation (NEW #1 PRIORITY!)
+Healthcare Technology
+Developer Tools
+B2B SaaS
+Fintech
+Cloud Infrastructure
+API Platforms</textarea>
+                </div>
+
+                <!-- Required Skills -->
+                <div class="form-group">
+                    <label for="required-skills">⚡ Required Keywords (Updated!)</label>
+                    <textarea id="required-skills" rows="5">program management, ai integration, technical leadership, api development, cloud deployment, python, automation, openai, machine learning, fastapi</textarea>
+                </div>
+
+                <!-- Location Preferences -->
+                <div class="form-group">
+                    <label for="location">📍 Location Preferences</label>
+                    <select id="location">
+                        <option>San Francisco, CA (Preferred)</option>
+                        <option>Bay Area, CA</option>
+                        <option>Remote</option>
+                        <option>Seattle, WA</option>
+                        <option>Austin, TX</option>
+                    </select>
+                </div>
+
+                <!-- Work Style -->
+                <div class="form-group">
+                    <label for="work-style">💼 Work Style</label>
+                    <select id="work-style">
+                        <option>Hybrid (Preferred)</option>
+                        <option>Remote</option>
+                        <option>On-site</option>
+                    </select>
+                </div>
+
+                <!-- Company Size -->
+                <div class="form-group">
+                    <label for="company-size">🏢 Company Size</label>
+                    <select id="company-size">
+                        <option>Medium (100-1000)</option>
+                        <option>Large (1000+)</option>
+                        <option>Enterprise (5000+)</option>
+                        <option>Well-funded Startup</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- AI Career Coaching -->
+            <div class="section new-feature">
+                <h3>🧠 AI Career Coach Insights</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <h4>Latest Coaching Session (July 25, 2025)</h4>
+                    <p><strong>Key Insight:</strong> Your AI platform development demonstrates exceptional self-directed learning and positions you for senior technical leadership roles with 20-30% salary increase potential.</p>
+                    
+                    <p style="margin-top: 10px;"><strong>Recommendations:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Target AI-focused program management roles</li>
+                        <li>Update LinkedIn to highlight AI platform development</li>
+                        <li>Create technical portfolio showcasing the platform</li>
+                        <li>Network with AI/ML technical leaders</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="launchAICoach()">🧠 Launch AI Career Coach</button>
+                <button class="btn btn-primary" onclick="runJobSearch()">🔍 Run Targeted Job Search</button>
+                <button class="btn btn-success" onclick="savePreferences()">💾 Save Preferences</button>
+                <button class="btn btn-secondary" onclick="resetPreferences()">🔄 Reset to Defaults</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function editSummary() {
+            alert('🎉 Professional summary editing enabled! In production, this would allow inline editing of your summary with auto-save functionality.');
+        }
+
+        function launchAICoach() {
+            alert('🧠 Launching AI Career Coach...\n\nBased on your recent AI platform development, I recommend:\n\n• Target technical program manager roles at AI companies\n• Highlight your unique combination of program management + AI development\n• Consider roles at companies like OpenAI, Anthropic, or AI-focused startups\n• Your salary range should be $180K-$280K based on your new capabilities');
+        }
+
+        function runJobSearch() {
+            alert('🔍 Running targeted job search...\n\nSearching for:\n• AI Platform Manager roles\n• Technical Program Manager positions\n• Senior roles requiring AI/ML integration\n• Companies: AI startups, healthcare tech, developer tools\n• Salary: $180K-$280K\n• Location: SF Bay Area + Remote\n\nExpected matches: 15-25 high-quality positions');
+        }
+
+        function savePreferences() {
+            alert('💾 Preferences saved successfully!\n\nYour updated profile now reflects:\n• AI/ML as top priority industry\n• Increased salary expectations\n• Enhanced technical keywords\n• AI-focused role targeting');
+        }
+
+        function resetPreferences() {
+            if (confirm('Are you sure you want to reset to default preferences?')) {
+                alert('🔄 Preferences reset to defaults (but keeping your AI platform achievements!)');
+            }
+        }
+
+        function exportProfile() {
+            alert('📄 Exporting complete profile...\n\nGenerating:\n• JSON data structure\n• Professional summary\n• Complete skills matrix\n• AI platform achievements\n• Updated job preferences\n\nReady for API integration and frontend consumption!');
+        }
+
+        function exportResume() {
+            alert('📋 Generating AI-enhanced resume...\n\nHighlighting:\n• AI platform development achievement\n• Technical leadership capabilities\n• Program management + AI development combination\n• Updated skills and technologies\n\nFormat: PDF with modern design');
+        }
+
+        function exportAboutMe() {
+            alert('🌐 Creating "About Me" webpage...\n\nGenerating professional page featuring:\n• AI-powered automation strategist positioning\n• Technical portfolio showcase\n• Interactive skills demonstration\n• Contact and networking information\n\nPerfect for personal website or LinkedIn!');
+        }
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate new features
+            const newFeatures = document.querySelectorAll('.new-feature');
+            newFeatures.forEach(feature => {
+                feature.style.animation = 'pulse 3s ease-in-out infinite';
+            });
+            
+            // Add hover effects to skill tags
+            const skillTags = document.querySelectorAll('.skill-tag');
+            skillTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                tag.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

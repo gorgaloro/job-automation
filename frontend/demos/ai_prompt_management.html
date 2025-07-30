@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .stats-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2rem; font-weight: 700; color: #3b82f6; margin-bottom: 8px; }
+        .prompt-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        .prompt-title { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .prompt-module { font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 4px 8px; border-radius: 12px; display: inline-block; }
+        .prompt-description { color: #64748b; margin: 16px 0; }
+        .prompt-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .detail-section { background: #f8fafc; border-radius: 8px; padding: 16px; }
+        .detail-title { font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+        .prompt-content { background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 0.8rem; margin: 16px 0; max-height: 200px; overflow-y: auto; }
+        .action-btn { padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-right: 8px; }
+        .edit { background: #3b82f6; color: white; }
+        .test { background: #10b981; color: white; }
+        .clone { background: #f59e0b; color: white; }
+        .category-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; margin-right: 8px; }
+        .scoring { background: #dbeafe; color: #1e40af; }
+        .generation { background: #dcfce7; color: #166534; }
+        .parsing { background: #fef3c7; color: #92400e; }
+        .analysis { background: #fce7f3; color: #be185d; }
+        .associations { margin: 16px 0; }
+        .association-title { font-weight: 600; color: #1e293b; margin-bottom: 8px; font-size: 0.9rem; }
+        .association-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .association-tag { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
+        .epic-tag { background: #e0e7ff; color: #3730a3; }
+        .webpage-tag { background: #ecfdf5; color: #065f46; }
+        .demo-tag { background: #fef3c7; color: #92400e; }
+        .api-tag { background: #fce7f3; color: #be185d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Prompt Management</h1>
+            <p>Review, edit, and optimize all AI prompts across the platform</p>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stat-card"><div class="stat-number">18</div><div>Total Prompts</div></div>
+            <div class="stat-card"><div class="stat-number">6</div><div>Core Modules</div></div>
+            <div class="stat-card"><div class="stat-number">4</div><div>Categories</div></div>
+            <div class="stat-card"><div class="stat-number">92%</div><div>Avg Performance</div></div>
+        </div>
+
+        <!-- Job Alignment Scoring -->
+        <div class="prompt-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                    <div class="prompt-title">Job Alignment Scoring</div>
+                    <div class="prompt-module">ai_scoring_engine.py</div>
+                </div>
+                <div>
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn test">Test</button>
+                    <button class="action-btn clone">Clone</button>
+                </div>
+            </div>
+            <div class="category-badge scoring">Scoring</div>
+            <div class="prompt-description">Scores job alignment with personal brand across role fit, industry, work environment, values, and growth opportunities.</div>
+            <div class="associations">
+                <div class="association-title">🔗 Used In:</div>
+                <div class="association-tags">
+                    <span class="association-tag epic-tag">Epic 2: Personal Brand</span>
+                    <span class="association-tag epic-tag">Epic 8: AI Scoring</span>
+                    <span class="association-tag webpage-tag">Dynamic Resume Optimizer</span>
+                    <span class="association-tag demo-tag">demo_personal_brand.py</span>
+                    <span class="association-tag api-tag">Personal Brand API</span>
+                </div>
+            </div>
+            <div class="prompt-details">
+                <div class="detail-section">
+                    <div class="detail-title">📥 Inputs</div>
+                    <div>• job_data: Title, description, requirements<br>• brand_profile: Personal brand data<br>• context: Scoring criteria</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">📤 Outputs</div>
+                    <div>• overall_score: 0-100 alignment<br>• scoring_factors: Detailed breakdown<br>• alignment_areas: Key strengths</div>
+                </div>
+            </div>
+            <div class="prompt-content">You are an AI career advisor analyzing job-candidate alignment.
+
+SCORING CRITERIA:
+- Role alignment (0-100): How well the role matches career goals
+- Industry fit (0-100): Industry alignment with preferences  
+- Work environment (0-100): Culture and work style fit
+- Values alignment (0-100): Company values vs personal values
+- Growth opportunity (0-100): Career development potential
+
+Return JSON with overall_score, confidence, scoring_factors, alignment_areas, concern_areas.</div>
+        </div>
+
+        <!-- Resume Job Fit Scoring -->
+        <div class="prompt-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                    <div class="prompt-title">Resume Job Fit Scoring</div>
+                    <div class="prompt-module">ai_scoring_engine.py</div>
+                </div>
+                <div>
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn test">Test</button>
+                    <button class="action-btn clone">Clone</button>
+                </div>
+            </div>
+            <div class="category-badge scoring">Scoring</div>
+            <div class="prompt-description">Analyzes resume-job match across keywords, experience relevance, and skills alignment with improvement suggestions.</div>
+            <div class="associations">
+                <div class="association-title">🔗 Used In:</div>
+                <div class="association-tags">
+                    <span class="association-tag epic-tag">Epic 1: Resume Optimizer</span>
+                    <span class="association-tag epic-tag">Epic 8: AI Scoring</span>
+                    <span class="association-tag webpage-tag">Dynamic Resume Optimizer</span>
+                    <span class="association-tag webpage-tag">Application Submission</span>
+                    <span class="association-tag demo-tag">demo_resume_optimizer.py</span>
+                    <span class="association-tag api-tag">Resume API</span>
+                </div>
+            </div>
+            <div class="prompt-details">
+                <div class="detail-section">
+                    <div class="detail-title">📥 Inputs</div>
+                    <div>• resume_data: Content and metadata<br>• job_data: Description and requirements<br>• brand_profile: Personal context</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">📤 Outputs</div>
+                    <div>• overall_score: 0-100 match score<br>• keyword_match_score: Keyword alignment<br>• suggested_improvements: Optimization tips</div>
+                </div>
+            </div>
+            <div class="prompt-content">You are an expert resume analyzer evaluating resume-job fit.
+
+EVALUATION CRITERIA:
+- Keyword matching: Alignment with job requirements
+- Experience relevance: How relevant past experience is
+- Skills alignment: Technical and soft skills match
+- Overall presentation: Professional quality and clarity
+
+Return JSON analysis with overall_score, confidence, scoring_factors, suggested_improvements.</div>
+        </div>
+
+        <!-- Career Coach Interview Questions -->
+        <div class="prompt-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                    <div class="prompt-title">Career Coach Interview Questions</div>
+                    <div class="prompt-module">ai_career_coach.py</div>
+                </div>
+                <div>
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn test">Test</button>
+                    <button class="action-btn clone">Clone</button>
+                </div>
+            </div>
+            <div class="category-badge generation">Generation</div>
+            <div class="prompt-description">Generates personalized interview questions for career coaching to discover personal brand, values, and career aspirations.</div>
+            <div class="associations">
+                <div class="association-title">🔗 Used In:</div>
+                <div class="association-tags">
+                    <span class="association-tag epic-tag">Epic 2: Personal Brand</span>
+                    <span class="association-tag webpage-tag">AI Career Coach Interface</span>
+                    <span class="association-tag demo-tag">demo_personal_brand.py</span>
+                    <span class="association-tag demo-tag">demo_ai_career_coach.py</span>
+                    <span class="association-tag api-tag">Career Coach API</span>
+                </div>
+            </div>
+            <div class="prompt-details">
+                <div class="detail-section">
+                    <div class="detail-title">📥 Inputs</div>
+                    <div>• conversation_history: Previous Q&A<br>• session_insights: Current learnings<br>• focus_areas: Areas to explore</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">📤 Outputs</div>
+                    <div>• question: Focused, open-ended question<br>• context: Why question is relevant<br>• follow_up_areas: Potential topics</div>
+                </div>
+            </div>
+            <div class="prompt-content">You are an expert career coach conducting personal brand discovery.
+
+CORE AREAS TO EXPLORE:
+1. Values and motivations
+2. Work environment preferences  
+3. Industry and role interests
+4. Leadership and collaboration style
+5. Career growth aspirations
+
+GUIDELINES:
+- Ask ONE focused, open-ended question
+- Build on what they've shared
+- Keep it conversational and engaging
+- Avoid yes/no questions
+
+Generate the next question based on conversation history and insights.</div>
+        </div>
+
+        <!-- Job Description Parser -->
+        <div class="prompt-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                    <div class="prompt-title">Job Description Parser</div>
+                    <div class="prompt-module">job_parser.py</div>
+                </div>
+                <div>
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn test">Test</button>
+                    <button class="action-btn clone">Clone</button>
+                </div>
+            </div>
+            <div class="category-badge parsing">Parsing</div>
+            <div class="prompt-description">Intelligently parses unstructured job descriptions into structured data including requirements, benefits, and company info.</div>
+            <div class="associations">
+                <div class="association-title">🔗 Used In:</div>
+                <div class="association-tags">
+                    <span class="association-tag epic-tag">Epic 3: Job Parser</span>
+                    <span class="association-tag epic-tag">Epic 6: Application Tracking</span>
+                    <span class="association-tag webpage-tag">Job Analysis Dashboard</span>
+                    <span class="association-tag webpage-tag">Application Submission</span>
+                    <span class="association-tag demo-tag">demo_job_parser.py</span>
+                    <span class="association-tag api-tag">Job Parser API</span>
+                </div>
+            </div>
+            <div class="prompt-details">
+                <div class="detail-section">
+                    <div class="detail-title">📥 Inputs</div>
+                    <div>• text: Raw job description text<br>• source_url: Optional source URL<br>• context: Parsing preferences</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">📤 Outputs</div>
+                    <div>• title: Job title<br>• company: Company name<br>• requirements: Structured requirements<br>• benefits: Benefits list</div>
+                </div>
+            </div>
+            <div class="prompt-content">Analyze the following job description and extract structured information.
+
+Return JSON with:
+{
+  "title": "Job title",
+  "company": "Company name",
+  "location": "Location",
+  "employment_type": "Full-time/Part-time/Contract",
+  "required_skills": ["skill1", "skill2"],
+  "preferred_skills": ["skill1", "skill2"],
+  "requirements": ["req1", "req2"],
+  "responsibilities": ["resp1", "resp2"],
+  "benefits": ["benefit1", "benefit2"],
+  "salary_range": "salary info if available"
+}</div>
+        </div>
+
+        <!-- Industry Mapping Utility -->
+        <div class="prompt-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                    <div class="prompt-title">Industry Mapping</div>
+                    <div class="prompt-module">utilities/ai-map-industry.py</div>
+                </div>
+                <div>
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn test">Test</button>
+                    <button class="action-btn clone">Clone</button>
+                </div>
+            </div>
+            <div class="category-badge parsing">Parsing</div>
+            <div class="prompt-description">Maps raw industry strings to standardized HubSpot industry values for consistent data normalization.</div>
+            <div class="associations">
+                <div class="association-title">🔗 Used In:</div>
+                <div class="association-tags">
+                    <span class="association-tag epic-tag">Epic 7: Company Enrichment</span>
+                    <span class="association-tag epic-tag">Epic 4: HubSpot Integration</span>
+                    <span class="association-tag demo-tag">utilities/ai-map-industry.py</span>
+                    <span class="association-tag demo-tag">demo_company_enrichment.py</span>
+                    <span class="association-tag api-tag">Company Enrichment API</span>
+                </div>
+            </div>
+            <div class="prompt-details">
+                <div class="detail-section">
+                    <div class="detail-title">📥 Inputs</div>
+                    <div>• raw_industry: Unstructured industry text<br>• context: HubSpot picklist values<br>• validation_rules: Mapping criteria</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">📤 Outputs</div>
+                    <div>• industry_value: Standardized industry<br>• confidence: Mapping confidence<br>• alternatives: Other possible matches</div>
+                </div>
+            </div>
+            <div class="prompt-content">You are an AI assistant helping align company industry values to HubSpot's validated picklist.
+
+Return only the best matching HubSpot industry value for the provided input.
+If the input is invalid or ambiguous, return 'Other'.
+
+Industry: {raw_industry}
+
+Valid HubSpot industries include: Technology, Healthcare, Financial Services, Manufacturing, Retail, Education, Government, Non-profit, etc.</div>
+        </div>
+
+        <!-- Profile Refinement -->
+        <div class="prompt-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                <div>
+                    <div class="prompt-title">Profile Refinement</div>
+                    <div class="prompt-module">ai_career_coach.py</div>
+                </div>
+                <div>
+                    <button class="action-btn edit">Edit</button>
+                    <button class="action-btn test">Test</button>
+                    <button class="action-btn clone">Clone</button>
+                </div>
+            </div>
+            <div class="category-badge analysis">Analysis</div>
+            <div class="prompt-description">Refines personal brand profiles based on user feedback, maintaining consistency while incorporating corrections.</div>
+            <div class="associations">
+                <div class="association-title">🔗 Used In:</div>
+                <div class="association-tags">
+                    <span class="association-tag epic-tag">Epic 2: Personal Brand</span>
+                    <span class="association-tag webpage-tag">AI Career Coach Interface</span>
+                    <span class="association-tag webpage-tag">Profile Management</span>
+                    <span class="association-tag demo-tag">demo_personal_brand.py</span>
+                    <span class="association-tag api-tag">Personal Brand API</span>
+                </div>
+            </div>
+            <div class="prompt-details">
+                <div class="detail-section">
+                    <div class="detail-title">📥 Inputs</div>
+                    <div>• profile: Current personal brand profile<br>• feedback: User corrections/suggestions<br>• context: Refinement guidelines</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-title">📤 Outputs</div>
+                    <div>• updated_profile: Refined profile JSON<br>• changes_made: List of modifications<br>• version: Updated version number</div>
+                </div>
+            </div>
+            <div class="prompt-content">You are refining a personal brand profile based on user feedback.
+
+CURRENT PROFILE: {profile}
+USER FEEDBACK: {feedback}
+
+Update the profile incorporating the feedback. Return updated JSON with same structure.
+
+Guidelines:
+- Make specific changes requested by user
+- Maintain consistency across sections
+- Update timestamp and version
+- Preserve core profile structure</div>
+        </div>
+    </div>
+
+    <script>
+        function editPrompt(promptId) {
+            alert(`Opening prompt editor for: ${promptId}\n\nThis would launch the prompt editing interface with:\n• Syntax highlighting\n• Variable validation\n• Performance testing\n• Version control`);
+        }
+        
+        function testPrompt(promptId) {
+            alert(`Testing prompt: ${promptId}\n\nThis would:\n• Run with sample data\n• Show output preview\n• Measure performance\n• Validate JSON structure`);
+        }
+        
+        function clonePrompt(promptId) {
+            alert(`Cloning prompt: ${promptId}\n\nThis would:\n• Create copy with new ID\n• Allow modifications\n• Preserve original\n• Enable A/B testing`);
+        }
+    </script>
+</body>
+</html>

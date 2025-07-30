@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Submission - Enhanced Interface</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; }
+        .container { display: flex; min-height: 100vh; max-width: 1600px; margin: 0 auto; gap: 20px; padding: 20px; }
+        .sidebar { width: 350px; background: white; border-radius: 16px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 20px; }
+        .sidebar-header { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0; }
+        .sidebar-title { font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .job-info { font-size: 0.9rem; color: #64748b; }
+        .overall-score { display: flex; align-items: center; justify-content: center; gap: 12px; background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .score-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; background: conic-gradient(from 0deg, #10b981 0deg 252deg, #e5e7eb 252deg 360deg); position: relative; }
+        .score-circle::before { content: ''; position: absolute; width: 45px; height: 45px; background: white; border-radius: 50%; z-index: 1; }
+        .score-text { position: relative; z-index: 2; color: #1e293b; }
+        .swot-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+        .swot-metric { padding: 12px; border-radius: 8px; text-align: center; }
+        .swot-metric.strengths { background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .swot-metric.weaknesses { background: #fef2f2; border: 1px solid #fecaca; }
+        .swot-metric.opportunities { background: #eff6ff; border: 1px solid #dbeafe; }
+        .swot-metric.threats { background: #fffbeb; border: 1px solid #fde68a; }
+        .metric-number { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .strengths .metric-number { color: #059669; }
+        .weaknesses .metric-number { color: #dc2626; }
+        .opportunities .metric-number { color: #2563eb; }
+        .threats .metric-number { color: #d97706; }
+        .metric-label { font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .document-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
+        .document-info { display: flex; align-items: center; gap: 8px; }
+        .document-icon { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; }
+        .document-icon.pdf { background: #ef4444; }
+        .document-icon.portfolio { background: #8b5cf6; }
+        .submit-button { padding: 14px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 12px; }
+        .submit-button.primary { background: #10b981; color: white; }
+        .submit-button.secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .main-content { flex: 1; background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .swot-quadrant { background: #f8fafc; border-radius: 12px; padding: 24px; border: 2px solid #e2e8f0; }
+        .quadrant-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .quadrant-title { font-size: 1.3rem; font-weight: 600; color: #1e293b; }
+        .swot-item { display: flex; gap: 10px; padding: 12px; background: white; border-radius: 8px; margin-bottom: 8px; }
+        .item-title { font-weight: 600; margin-bottom: 4px; font-size: 0.9rem; }
+        .item-description { font-size: 0.8rem; color: #64748b; }
+        @media (max-width: 1200px) { .container { flex-direction: column; } .sidebar { width: 100%; } .swot-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">📋 Application Package</div>
+                <div class="job-info">Senior Product Manager • Coactive AI</div>
+            </div>
+            
+            <div class="overall-score">
+                <div class="score-circle"><div class="score-text">78%</div></div>
+                <div><div style="font-weight: 600;">Strategic Fit</div><div style="font-size: 0.85rem; color: #64748b;">Strong foundation</div></div>
+            </div>
+            
+            <div class="swot-summary">
+                <div class="swot-metric strengths"><div class="metric-number">5</div><div class="metric-label">Strengths</div></div>
+                <div class="swot-metric weaknesses"><div class="metric-number">5</div><div class="metric-label">Weaknesses</div></div>
+                <div class="swot-metric opportunities"><div class="metric-number">5</div><div class="metric-label">Opportunities</div></div>
+                <div class="swot-metric threats"><div class="metric-number">5</div><div class="metric-label">Threats</div></div>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px;">📄 Documents</h4>
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon pdf">PDF</div>
+                        <div>Resume (Enriched)</div>
+                    </div>
+                    <button onclick="alert('Opening resume PDF...')">Review</button>
+                </div>
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon pdf">PDF</div>
+                        <div>Cover Letter</div>
+                    </div>
+                    <button onclick="alert('Opening cover letter PDF...')">Review</button>
+                </div>
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon portfolio">WEB</div>
+                        <div>Portfolio</div>
+                    </div>
+                    <button onclick="alert('Opening portfolio website...')">Review</button>
+                </div>
+            </div>
+            
+            <div>
+                <h4 style="margin-bottom: 12px;">🚀 Submit Application</h4>
+                <button class="submit-button primary" onclick="submitApp('api')">⚡ Auto-Submit via API</button>
+                <button class="submit-button secondary" onclick="submitApp('manual')">📁 Manual Submission</button>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">✅ Coactive AI API Available</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="font-size: 2rem; margin-bottom: 8px;">📊 SWOT Analysis</h1>
+                <p>Internal application strengths/weaknesses vs. external competitive landscape</p>
+            </div>
+            
+            <div class="swot-grid">
+                <div class="swot-quadrant">
+                    <div class="quadrant-header">
+                        <span style="font-size: 24px;">💪</span>
+                        <div class="quadrant-title">Strengths</div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">S1</div>
+                        <div><div class="item-title">Extensive Leadership Experience</div><div class="item-description">15+ years managing cross-functional teams</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">S2</div>
+                        <div><div class="item-title">AI/ML Technical Foundation</div><div class="item-description">Recent AI platform development, OpenAI integration</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">S3</div>
+                        <div><div class="item-title">Process Optimization</div><div class="item-description">Proven ability to streamline operations, reduce costs</div></div>
+                    </div>
+                </div>
+                
+                <div class="swot-quadrant">
+                    <div class="quadrant-header">
+                        <span style="font-size: 24px;">⚠️</span>
+                        <div class="quadrant-title">Weaknesses</div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #ef4444; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">W1</div>
+                        <div><div class="item-title">Computer Vision Domain Gap</div><div class="item-description">Limited direct computer vision experience</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #ef4444; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">W2</div>
+                        <div><div class="item-title">B2B SaaS Platform Experience</div><div class="item-description">Healthcare/automotive vs. SaaS platforms</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #ef4444; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">W3</div>
+                        <div><div class="item-title">API Product Management</div><div class="item-description">Limited developer-facing API experience</div></div>
+                    </div>
+                </div>
+                
+                <div class="swot-quadrant">
+                    <div class="quadrant-header">
+                        <span style="font-size: 24px;">🚀</span>
+                        <div class="quadrant-title">Opportunities</div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #3b82f6; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">O1</div>
+                        <div><div class="item-title">Senior Leadership Premium</div><div class="item-description">AI industry values experienced leaders</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #3b82f6; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">O2</div>
+                        <div><div class="item-title">Diverse Skill Set Advantage</div><div class="item-description">Job values broad skills over specialization</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #3b82f6; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">O3</div>
+                        <div><div class="item-title">Enterprise AI Adoption</div><div class="item-description">Growing demand for implementation experience</div></div>
+                    </div>
+                </div>
+                
+                <div class="swot-quadrant">
+                    <div class="quadrant-header">
+                        <span style="font-size: 24px;">⚡</span>
+                        <div class="quadrant-title">Threats</div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">T1</div>
+                        <div><div class="item-title">Junior Technical Specialists</div><div class="item-description">Candidates with deeper CV/ML expertise</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">T2</div>
+                        <div><div class="item-title">B2B SaaS Native Candidates</div><div class="item-description">Extensive SaaS platform experience</div></div>
+                    </div>
+                    <div class="swot-item">
+                        <div style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px;">T3</div>
+                        <div><div class="item-title">Technical Depth Bias</div><div class="item-description">Preference for engineering backgrounds</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function submitApp(method) {
+            if (method === 'api') {
+                alert('🚀 API SUBMISSION\n\nSubmitting application via Coactive AI API...\n\n✅ Resume submitted\n✅ Cover letter submitted\n✅ Portfolio link submitted\n✅ SWOT analysis saved\n✅ Job status updated to "submitted"\n\nApplication tracking ID: COACT_PM_001_20250728');
+            } else {
+                alert('📁 MANUAL SUBMISSION\n\nSaving documents to desktop...\n\n✅ Allen_Walker_Senior_Product_Manager_Coactive_AI_2025-07-28_Resume.pdf\n✅ Allen_Walker_Senior_Product_Manager_Coactive_AI_2025-07-28_CoverLetter.pdf\n✅ Portfolio_Link.txt\n✅ SWOT_Analysis.pdf\n\nReady for manual application submission!');
+            }
+        }
+    </script>
+</body>
+</html>

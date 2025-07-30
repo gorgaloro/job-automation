@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Editor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; line-height: 1.6; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .editor-layout { display: grid; grid-template-columns: 300px 1fr 350px; gap: 0; height: calc(100vh - 200px); box-shadow: 0 8px 32px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; }
+        .prompt-list { background: #f8fafc; padding: 20px; overflow-y: auto; border-right: 1px solid #e2e8f0; }
+        .editor-panel { background: white; padding: 24px; display: flex; flex-direction: column; border-right: 1px solid #e2e8f0; }
+        
+        .prompt-item { padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s; border-left: 4px solid transparent; }
+        .prompt-item:hover { background: #f1f5f9; }
+        .prompt-item.active { background: #eff6ff; border-left-color: #3b82f6; }
+        .prompt-item.modified { border-left-color: #f59e0b; }
+        .prompt-item.error { border-left-color: #ef4444; }
+        .prompt-name { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .prompt-module { font-size: 0.8rem; color: #64748b; }
+        .prompt-status { font-size: 0.75rem; margin-top: 4px; }
+        .status-saved { color: #10b981; }
+        .status-modified { color: #f59e0b; }
+        .status-error { color: #ef4444; }
+        
+        .editor-header { display: flex; justify-content: between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+        .editor-title { font-size: 1.4rem; font-weight: 700; color: #1e293b; }
+        .editor-actions { display: flex; gap: 8px; }
+        .action-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-secondary { background: #f1f5f9; color: #64748b; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .action-btn:hover { transform: translateY(-1px); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .editor-content { flex: 1; display: flex; flex-direction: column; }
+        .prompt-metadata { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .metadata-field { display: flex; flex-direction: column; }
+        .metadata-label { font-weight: 600; color: #1e293b; margin-bottom: 4px; font-size: 0.9rem; }
+        .metadata-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+        
+        .prompt-editor { flex: 1; display: flex; flex-direction: column; }
+        .editor-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+        .toolbar-btn { padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-size: 0.8rem; }
+        .toolbar-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        
+        .prompt-textarea { flex: 1; padding: 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem; line-height: 1.5; resize: none; background: #1e293b; color: #e2e8f0; }
+        .prompt-textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
+        .validation-panel { margin-top: 16px; padding: 12px; border-radius: 8px; }
+        .validation-success { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
+        .validation-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+        .validation-warning { background: #fffbeb; border: 1px solid #fed7aa; color: #92400e; }
+        
+        .version-history { margin-top: 20px; }
+        .version-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; background: #f8fafc; }
+        .version-info { font-size: 0.8rem; color: #64748b; }
+        .version-actions { display: flex; gap: 6px; }
+        .version-btn { padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        
+        .test-panel { margin-top: 20px; padding: 16px; background: #f8fafc; border-radius: 8px; }
+        .test-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .test-output { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; min-height: 100px; white-space: pre-wrap; }
+
+        /* Usage Tags Styles */
+        .usage-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+        }
+
+        .epic-tag {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .module-tag {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .page-tag {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .demo-tag {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .api-tag {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .usage-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+        
+        .stats-panel { background: #f1f5f9; padding: 20px; overflow-y: auto; }
+        .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .stats-title { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .live-indicator { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
+        .live-active { background: #dcfce7; color: #166534; }
+        .live-testing { background: #fef3c7; color: #92400e; }
+        
+        .current-performance { margin-bottom: 24px; }
+        .perf-metric { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .perf-label { font-size: 0.9rem; color: #64748b; }
+        .perf-value { font-weight: 600; }
+        .perf-excellent { color: #10b981; }
+        .perf-good { color: #3b82f6; }
+        .perf-warning { color: #f59e0b; }
+        .perf-poor { color: #ef4444; }
+        
+        .version-comparison { margin-bottom: 24px; }
+        .comparison-chart { height: 150px; background: #f8fafc; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.8rem; }
+        
+        .version-list { margin-bottom: 24px; }
+        .version-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s; }
+        .version-card:hover { border-color: #3b82f6; }
+        .version-card.active { border-color: #3b82f6; background: #eff6ff; }
+        .version-card.live { border-color: #10b981; background: #dcfce7; }
+        .version-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .version-name { font-weight: 600; color: #1e293b; }
+        .version-badge { padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; }
+        .badge-live { background: #10b981; color: white; }
+        .badge-testing { background: #f59e0b; color: white; }
+        .badge-draft { background: #64748b; color: white; }
+        .version-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; }
+        .version-stat { text-align: center; }
+        .version-stat-value { font-weight: 600; }
+        .version-stat-label { color: #64748b; }
+        
+        .ab-test-panel { background: #f8fafc; border-radius: 8px; padding: 16px; }
+        .ab-test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .ab-test-title { font-weight: 600; color: #1e293b; }
+        .ab-split { display: flex; gap: 8px; margin-bottom: 12px; }
+        .ab-version { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-size: 0.8rem; }
+        .ab-version.winner { border-color: #10b981; background: #dcfce7; }
+        
+        @media (max-width: 1400px) {
+            .editor-layout { grid-template-columns: 250px 1fr 300px; }
+        }
+        @media (max-width: 1024px) {
+            .editor-layout { grid-template-columns: 1fr; height: auto; flex-direction: column; }
+            .prompt-list, .editor-panel, .stats-panel { border-right: none; border-bottom: 1px solid #e2e8f0; }
+            .prompt-metadata { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; padding: 12px 24px; position: sticky; top: 0; z-index: 100;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
+            <!-- Logo/Brand -->
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <a href="#" style="font-size: 1.5rem; font-weight: 700; color: #1e293b; text-decoration: none;">🤖 AI Job Search</a>
+                <div style="height: 24px; width: 1px; background: #e2e8f0;"></div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.9rem;">
+                    <a href="dynamic_resume_optimizer.html" style="color: #64748b; text-decoration: none;">Resume</a>
+                    <span>›</span>
+                    <a href="ai_dashboard_enhanced.html" style="color: #64748b; text-decoration: none;">AI Dashboard</a>
+                    <span>›</span>
+                    <span style="color: #3b82f6; font-weight: 500;">Prompt Editor</span>
+                </div>
+            </div>
+            
+            <!-- Main Navigation -->
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <a href="dynamic_resume_optimizer.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">📄 Resume Optimizer</a>
+                <a href="application_submission.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">📋 Application Submission</a>
+                <a href="ai_dashboard_enhanced.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">📊 AI Dashboard</a>
+                <a href="ai_prompt_editor.html" style="color: #3b82f6; text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eff6ff; border-radius: 8px;">💬 Prompt Editor</a>
+                <a href="admin_settings.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">⚙️ Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✏️ AI Prompt Editor</h1>
+            <p>Edit, test, and optimize AI prompts with real-time validation and version control</p>
+        </div>
+
+        <!-- Editor Layout -->
+        <div class="editor-layout">
+            <!-- Prompt List Sidebar -->
+            <div class="prompt-list">
+                <h3 style="margin-bottom: 16px; color: #1e293b;">Prompts</h3>
+                
+                <div class="prompt-item active" onclick="loadPrompt('job_alignment')">
+                    <div class="prompt-name">Job Alignment Scoring</div>
+                    <div class="prompt-module">ai_scoring_engine.py</div>
+                    <div class="prompt-status status-saved">✓ Saved</div>
+                </div>
+                
+                <div class="prompt-item modified" onclick="loadPrompt('resume_fit')">
+                    <div class="prompt-name">Resume Job Fit Scoring</div>
+                    <div class="prompt-module">ai_scoring_engine.py</div>
+                    <div class="prompt-status status-modified">● Modified</div>
+                </div>
+                
+                <div class="prompt-item" onclick="loadPrompt('career_coach')">
+                    <div class="prompt-name">Career Coach Questions</div>
+                    <div class="prompt-module">ai_career_coach.py</div>
+                    <div class="prompt-status status-saved">✓ Saved</div>
+                </div>
+                
+                <div class="prompt-item" onclick="loadPrompt('job_parser')">
+                    <div class="prompt-name">Job Description Parser</div>
+                    <div class="prompt-module">job_parser.py</div>
+                    <div class="prompt-status status-saved">✓ Saved</div>
+                </div>
+                
+                <div class="prompt-item error" onclick="loadPrompt('industry_mapping')">
+                    <div class="prompt-name">Industry Mapping</div>
+                    <div class="prompt-module">utilities/ai-map-industry.py</div>
+                    <div class="prompt-status status-error">⚠ Validation Error</div>
+                </div>
+                
+                <div class="prompt-item" onclick="loadPrompt('profile_refinement')">
+                    <div class="prompt-name">Profile Refinement</div>
+                    <div class="prompt-module">ai_career_coach.py</div>
+                    <div class="prompt-status status-saved">✓ Saved</div>
+                </div>
+            </div>
+
+            <!-- Editor Panel -->
+            <div class="editor-panel">
+                <!-- Editor Header -->
+                <div class="editor-header">
+                    <div>
+                        <div class="editor-title">Job Alignment Scoring</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">ai_scoring_engine.py • Last modified: 2 hours ago</div>
+                    </div>
+                    <div class="editor-actions">
+                        <button class="action-btn btn-secondary" onclick="revertChanges()">Revert</button>
+                        <button class="action-btn btn-warning" onclick="testPrompt()">Test</button>
+                        <button class="action-btn btn-success" onclick="savePrompt()">Save</button>
+                        <button class="action-btn btn-primary" onclick="deployPrompt()">Deploy</button>
+                    </div>
+                </div>
+
+                <!-- Prompt Summary -->
+                <div class="prompt-summary" style="margin-bottom: 20px; padding: 16px; background: #f8fafc; border-radius: 8px;">
+                    <h4 style="margin-bottom: 12px; color: #1e293b;">📋 Purpose & Summary</h4>
+                    <p id="promptSummary" style="color: #64748b; line-height: 1.6; margin-bottom: 16px;">
+                        Evaluates how well a job posting aligns with a candidate's personal brand profile across multiple dimensions including role fit, industry alignment, work environment preferences, company values, and growth opportunities. Returns a comprehensive scoring breakdown with specific areas of alignment and concern.
+                    </p>
+                    
+                    <!-- Usage Tags -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px; font-size: 0.9rem;">🏷️ Used In:</div>
+                        <div id="usageTags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span class="usage-tag epic-tag">Epic 2: Personal Brand</span>
+                            <span class="usage-tag epic-tag">Epic 8: AI Scoring</span>
+                            <span class="usage-tag module-tag">ai_scoring_engine.py</span>
+                            <span class="usage-tag page-tag">Dynamic Resume Optimizer</span>
+                            <span class="usage-tag page-tag">Application Submission</span>
+                            <span class="usage-tag demo-tag">demo_personal_brand.py</span>
+                            <span class="usage-tag api-tag">Personal Brand API</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input/Output Tables -->
+                <div class="io-tables" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div class="input-table">
+                        <h4 style="margin-bottom: 12px; color: #1e293b;">📥 Inputs</h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                            <thead>
+                                <tr style="background: #f1f5f9;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Parameter</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Type</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inputTableBody">
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">job_data</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Object</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Job title, description, company, requirements</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">brand_profile</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Object</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Personal brand profile and preferences</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">context</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Object</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Scoring criteria and weights</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="output-table">
+                        <h4 style="margin-bottom: 12px; color: #1e293b;">📤 Outputs</h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                            <thead>
+                                <tr style="background: #f1f5f9;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Field</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Type</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outputTableBody">
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">overall_score</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Number</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">0-100 alignment score</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">confidence</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Number</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">0-1 confidence level</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">scoring_factors</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Object</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Detailed breakdown by dimension</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">alignment_areas</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Array</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Key strengths and matches</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: 600;">concern_areas</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Array</td>
+                                    <td style="padding: 8px; border: 1px solid #e2e8f0;">Potential issues or mismatches</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Prompt Metadata -->
+                <div class="prompt-metadata">
+                    <div class="metadata-field">
+                        <label class="metadata-label">Prompt Name</label>
+                        <input type="text" class="metadata-input" value="Job Alignment Scoring" id="promptName">
+                    </div>
+                    <div class="metadata-field">
+                        <label class="metadata-label">Category</label>
+                        <select class="metadata-input" id="promptCategory">
+                            <option value="scoring" selected>Scoring</option>
+                            <option value="generation">Generation</option>
+                            <option value="parsing">Parsing</option>
+                            <option value="analysis">Analysis</option>
+                        </select>
+                    </div>
+                    <div class="metadata-field">
+                        <label class="metadata-label">Module</label>
+                        <input type="text" class="metadata-input" value="ai_scoring_engine.py" id="promptModule">
+                    </div>
+                    <div class="metadata-field">
+                        <label class="metadata-label">Version</label>
+                        <input type="text" class="metadata-input" value="1.3.2" id="promptVersion" readonly>
+                    </div>
+                </div>
+
+                <!-- Prompt Editor -->
+                <div class="prompt-editor">
+                    <div class="editor-toolbar">
+                        <button class="toolbar-btn active" onclick="setEditorMode('edit')">Edit</button>
+                        <button class="toolbar-btn" onclick="setEditorMode('preview')">Preview</button>
+                        <button class="toolbar-btn" onclick="insertVariable()">Insert Variable</button>
+                        <button class="toolbar-btn" onclick="formatPrompt()">Format</button>
+                        <button class="toolbar-btn" onclick="showHistory()">History</button>
+                    </div>
+                    
+                    <textarea class="prompt-textarea" id="promptContent" placeholder="Enter your prompt content here...">You are an AI career advisor analyzing job-candidate alignment.
+
+SCORING CRITERIA:
+- Role alignment (0-100): How well the role matches career goals
+- Industry fit (0-100): Industry alignment with preferences  
+- Work environment (0-100): Culture and work style fit
+- Values alignment (0-100): Company values vs personal values
+- Growth opportunity (0-100): Career development potential
+- Deal breaker penalty (0-100): Presence of deal breakers
+
+JOB DATA:
+{job_data}
+
+PERSONAL BRAND PROFILE:
+{brand_profile}
+
+Analyze the alignment and return JSON with:
+{
+  "overall_score": <0-100>,
+  "confidence": <0-1>,
+  "scoring_factors": {
+    "role_alignment": <0-100>,
+    "industry_fit": <0-100>,
+    "work_environment": <0-100>,
+    "values_alignment": <0-100>,
+    "growth_opportunity": <0-100>,
+    "deal_breaker_penalty": <0-100>
+  },
+  "alignment_areas": ["area1", "area2", ...],
+  "concern_areas": ["concern1", "concern2", ...],
+  "recommended_resume_version": "<version_name_if_applicable>"
+}</textarea>
+                </div>
+
+                <!-- Validation Panel -->
+                <div class="validation-panel validation-success" id="validationPanel">
+                    <strong>✓ Validation Passed</strong><br>
+                    • JSON structure is valid<br>
+                    • All required variables are present<br>
+                    • Prompt length: 1,247 characters (optimal)
+                </div>
+
+                <!-- Test Panel -->
+                <div class="test-panel" style="display: none;" id="testPanel">
+                    <h4 style="margin-bottom: 12px;">Test Prompt</h4>
+                    <textarea class="test-input" placeholder="Enter test input data (JSON format)..." rows="3">{"job_data": {"title": "Senior Product Manager", "company": "TechCorp"}, "brand_profile": {"preferred_industries": ["technology"], "career_goals": ["product leadership"]}}</textarea>
+                    <button class="action-btn btn-primary" onclick="runTest()">Run Test</button>
+                    <div class="test-output" id="testOutput">Click "Run Test" to see AI response...</div>
+                </div>
+            </div>
+
+            <!-- Stats & Version Performance Panel -->
+            <div class="stats-panel">
+                <!-- Stats Header -->
+                <div class="stats-header">
+                    <div class="stats-title">Performance Stats</div>
+                    <div class="live-indicator live-active">● LIVE</div>
+                </div>
+
+                <!-- Current Performance -->
+                <div class="current-performance">
+                    <h4 style="margin-bottom: 12px; color: #1e293b;">Current Version (v1.3.2)</h4>
+                    <div class="perf-metric">
+                        <span class="perf-label">Overall Score</span>
+                        <span class="perf-value perf-excellent">94%</span>
+                    </div>
+                    <div class="perf-metric">
+                        <span class="perf-label">User Rating</span>
+                        <span class="perf-value perf-excellent">4.7/5.0</span>
+                    </div>
+                    <div class="perf-metric">
+                        <span class="perf-label">Response Time</span>
+                        <span class="perf-value perf-good">823ms</span>
+                    </div>
+                    <div class="perf-metric">
+                        <span class="perf-label">Usage Today</span>
+                        <span class="perf-value">1,247 calls</span>
+                    </div>
+                    <div class="perf-metric">
+                        <span class="perf-label">Success Rate</span>
+                        <span class="perf-value perf-excellent">98.2%</span>
+                    </div>
+                </div>
+
+                <!-- Version Comparison Chart -->
+                <div class="version-comparison">
+                    <h4 style="margin-bottom: 12px; color: #1e293b;">Version Performance</h4>
+                    <div class="comparison-chart">
+                        📊 Performance trend chart<br>
+                        <small>Shows last 5 versions over time</small>
+                    </div>
+                </div>
+
+                <!-- Version List with Performance -->
+                <div class="version-list">
+                    <h4 style="margin-bottom: 12px; color: #1e293b;">All Versions</h4>
+                    
+                    <div class="version-card live" onclick="switchToVersion('1.3.2')">
+                        <div class="version-header">
+                            <span class="version-name">v1.3.2</span>
+                            <span class="version-badge badge-live">LIVE</span>
+                        </div>
+                        <div class="version-stats">
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-excellent">94%</div>
+                                <div class="version-stat-label">Score</div>
+                            </div>
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-excellent">4.7</div>
+                                <div class="version-stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="version-card" onclick="switchToVersion('1.3.1')">
+                        <div class="version-header">
+                            <span class="version-name">v1.3.1</span>
+                            <span class="version-badge badge-draft">DRAFT</span>
+                        </div>
+                        <div class="version-stats">
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-good">89%</div>
+                                <div class="version-stat-label">Score</div>
+                            </div>
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-good">4.3</div>
+                                <div class="version-stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="version-card" onclick="switchToVersion('1.3.0')">
+                        <div class="version-header">
+                            <span class="version-name">v1.3.0</span>
+                            <span class="version-badge badge-draft">DRAFT</span>
+                        </div>
+                        <div class="version-stats">
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-warning">82%</div>
+                                <div class="version-stat-label">Score</div>
+                            </div>
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-warning">3.9</div>
+                                <div class="version-stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="version-card" onclick="switchToVersion('1.2.5')">
+                        <div class="version-header">
+                            <span class="version-name">v1.2.5</span>
+                            <span class="version-badge badge-draft">DRAFT</span>
+                        </div>
+                        <div class="version-stats">
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-poor">76%</div>
+                                <div class="version-stat-label">Score</div>
+                            </div>
+                            <div class="version-stat">
+                                <div class="version-stat-value perf-poor">3.4</div>
+                                <div class="version-stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- A/B Testing Panel -->
+                <div class="ab-test-panel">
+                    <div class="ab-test-header">
+                        <span class="ab-test-title">A/B Test Setup</span>
+                        <button class="action-btn btn-primary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="startABTest()">Start Test</button>
+                    </div>
+                    <div class="ab-split">
+                        <div class="ab-version">
+                            <strong>Version A</strong><br>
+                            v1.3.2 (Current)
+                        </div>
+                        <div class="ab-version">
+                            <strong>Version B</strong><br>
+                            <select style="width: 100%; margin-top: 4px; font-size: 0.75rem;">
+                                <option>Select version...</option>
+                                <option value="1.3.1">v1.3.1</option>
+                                <option value="1.3.0">v1.3.0</option>
+                                <option value="new">New Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #64748b; text-align: center;">
+                        Split: 50% / 50%<br>
+                        <small>Traffic will be automatically divided</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version History Modal -->
+        <div class="modal-overlay" id="historyModal">
+            <div class="modal">
+                <div class="modal-title">Version History</div>
+                <div class="version-history">
+                    <div class="version-item">
+                        <div>
+                            <strong>v1.3.2</strong> (Current)<br>
+                            <div class="version-info">2 hours ago • Added deal breaker penalty logic</div>
+                        </div>
+                        <div class="version-actions">
+                            <button class="version-btn btn-secondary">View</button>
+                        </div>
+                    </div>
+                    <div class="version-item">
+                        <div>
+                            <strong>v1.3.1</strong><br>
+                            <div class="version-info">1 day ago • Improved scoring criteria descriptions</div>
+                        </div>
+                        <div class="version-actions">
+                            <button class="version-btn btn-secondary">View</button>
+                            <button class="version-btn btn-warning">Restore</button>
+                        </div>
+                    </div>
+                    <div class="version-item">
+                        <div>
+                            <strong>v1.3.0</strong><br>
+                            <div class="version-info">3 days ago • Added confidence scoring</div>
+                        </div>
+                        <div class="version-actions">
+                            <button class="version-btn btn-secondary">View</button>
+                            <button class="version-btn btn-warning">Restore</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="action-btn btn-secondary" onclick="closeModal('historyModal')">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPrompt = 'job_alignment';
+        let hasUnsavedChanges = false;
+
+        function loadPrompt(promptId) {
+            // Update active prompt in sidebar
+            document.querySelectorAll('.prompt-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.prompt-item').classList.add('active');
+            
+            currentPrompt = promptId;
+            
+            // Load prompt data (in real implementation, this would fetch from backend)
+            const prompts = {
+                'job_alignment': {
+                    name: 'Job Alignment Scoring',
+                    module: 'ai_scoring_engine.py',
+                    category: 'scoring',
+                    version: '1.3.2',
+                    summary: 'Evaluates how well a job posting aligns with a candidate\'s personal brand profile across multiple dimensions including role fit, industry alignment, work environment preferences, company values, and growth opportunities. Returns a comprehensive scoring breakdown with specific areas of alignment and concern.',
+                    usageTags: [
+                        { text: 'Epic 2: Personal Brand', type: 'epic' },
+                        { text: 'Epic 8: AI Scoring', type: 'epic' },
+                        { text: 'ai_scoring_engine.py', type: 'module' },
+                        { text: 'Dynamic Resume Optimizer', type: 'page' },
+                        { text: 'Application Submission', type: 'page' },
+                        { text: 'demo_personal_brand.py', type: 'demo' },
+                        { text: 'Personal Brand API', type: 'api' }
+                    ],
+                    inputs: [
+                        { parameter: 'job_data', type: 'Object', description: 'Job title, description, company, requirements' },
+                        { parameter: 'brand_profile', type: 'Object', description: 'Personal brand profile and preferences' },
+                        { parameter: 'context', type: 'Object', description: 'Scoring criteria and weights' }
+                    ],
+                    outputs: [
+                        { field: 'overall_score', type: 'Number', description: '0-100 alignment score' },
+                        { field: 'confidence', type: 'Number', description: '0-1 confidence level' },
+                        { field: 'scoring_factors', type: 'Object', description: 'Detailed breakdown by dimension' },
+                        { field: 'alignment_areas', type: 'Array', description: 'Key strengths and matches' },
+                        { field: 'concern_areas', type: 'Array', description: 'Potential issues or mismatches' }
+                    ],
+                    content: document.getElementById('promptContent').value
+                },
+                'resume_fit': {
+                    name: 'Resume Job Fit Scoring',
+                    module: 'ai_scoring_engine.py',
+                    category: 'scoring',
+                    version: '2.1.0',
+                    summary: 'Analyzes resume content against job requirements to determine compatibility score. Evaluates skills match, experience relevance, education alignment, and identifies gaps or strengths in the candidate profile.',
+                    usageTags: [
+                        { text: 'Epic 1: Resume Optimizer', type: 'epic' },
+                        { text: 'Epic 8: AI Scoring', type: 'epic' },
+                        { text: 'ai_scoring_engine.py', type: 'module' },
+                        { text: 'Dynamic Resume Optimizer', type: 'page' },
+                        { text: 'demo_resume_optimizer.py', type: 'demo' },
+                        { text: 'Resume API', type: 'api' }
+                    ],
+                    inputs: [
+                        { parameter: 'resume_data', type: 'Object', description: 'Parsed resume content and structure' },
+                        { parameter: 'job_requirements', type: 'Object', description: 'Job skills, experience, and qualifications' },
+                        { parameter: 'scoring_weights', type: 'Object', description: 'Importance weights for different factors' }
+                    ],
+                    outputs: [
+                        { field: 'fit_score', type: 'Number', description: '0-100 compatibility score' },
+                        { field: 'skill_matches', type: 'Array', description: 'Matched skills and proficiency levels' },
+                        { field: 'experience_gaps', type: 'Array', description: 'Missing experience or qualifications' },
+                        { field: 'recommendations', type: 'Array', description: 'Improvement suggestions' }
+                    ],
+                    content: 'You are an expert resume analyzer evaluating resume-job fit...'
+                },
+                'career_coach': {
+                    name: 'Career Coach Questions',
+                    module: 'ai_career_coach.py',
+                    category: 'generation',
+                    version: '1.5.1',
+                    summary: 'Generates personalized career coaching questions to help candidates discover their personal brand, career goals, and professional strengths. Creates dynamic interview flows based on responses.',
+                    usageTags: [
+                        { text: 'Epic 2: Personal Brand', type: 'epic' },
+                        { text: 'ai_career_coach.py', type: 'module' },
+                        { text: 'Personal Brand Interface', type: 'page' },
+                        { text: 'demo_personal_brand.py', type: 'demo' },
+                        { text: 'Career Coach API', type: 'api' }
+                    ],
+                    inputs: [
+                        { parameter: 'user_profile', type: 'Object', description: 'Basic user information and preferences' },
+                        { parameter: 'session_context', type: 'Object', description: 'Current session state and previous responses' },
+                        { parameter: 'question_type', type: 'String', description: 'Type of questions to generate (values, goals, strengths)' }
+                    ],
+                    outputs: [
+                        { field: 'questions', type: 'Array', description: 'Generated coaching questions' },
+                        { field: 'follow_up_prompts', type: 'Array', description: 'Conditional follow-up questions' },
+                        { field: 'session_progress', type: 'Object', description: 'Completion status and next steps' }
+                    ],
+                    content: 'You are an expert career coach conducting personal brand discovery...'
+                }
+            };
+            
+            const prompt = prompts[promptId] || prompts['job_alignment'];
+            
+            // Update editor
+            document.getElementById('promptName').value = prompt.name;
+            document.getElementById('promptModule').value = prompt.module;
+            document.getElementById('promptCategory').value = prompt.category;
+            document.getElementById('promptVersion').value = prompt.version;
+            document.getElementById('promptContent').value = prompt.content;
+            
+            // Update summary
+            document.getElementById('promptSummary').textContent = prompt.summary;
+            
+            // Update usage tags
+            updateUsageTags(prompt.usageTags);
+            
+            // Update input/output tables
+            updateInputTable(prompt.inputs);
+            updateOutputTable(prompt.outputs);
+            
+            // Update header
+            document.querySelector('.editor-title').textContent = prompt.name;
+            
+            // Reset validation
+            validatePrompt();
+        }
+
+        function validatePrompt() {
+            const content = document.getElementById('promptContent').value;
+            const panel = document.getElementById('validationPanel');
+            
+            // Simple validation logic (in real implementation, this would be more sophisticated)
+            const hasVariables = content.includes('{') && content.includes('}');
+            const hasInstructions = content.length > 100;
+            const hasJSON = content.includes('"') && content.includes(':');
+            
+            if (hasVariables && hasInstructions && hasJSON) {
+                panel.className = 'validation-panel validation-success';
+                panel.innerHTML = '<strong>✓ Validation Passed</strong><br>• JSON structure is valid<br>• All required variables are present<br>• Prompt length: ' + content.length + ' characters (optimal)';
+            } else {
+                panel.className = 'validation-panel validation-error';
+                panel.innerHTML = '<strong>⚠ Validation Issues</strong><br>• Missing required variables<br>• Incomplete prompt structure<br>• Review prompt format';
+            }
+        }
+
+        function savePrompt() {
+            // In real implementation, this would save to backend
+            console.log('Saving prompt:', currentPrompt);
+            
+            // Update UI to show saved state
+            const activeItem = document.querySelector('.prompt-item.active');
+            const statusElement = activeItem.querySelector('.prompt-status');
+            statusElement.className = 'prompt-status status-saved';
+            statusElement.textContent = '✓ Saved';
+            activeItem.classList.remove('modified');
+            
+            hasUnsavedChanges = false;
+            
+            // Show success message
+            showNotification('Prompt saved successfully!', 'success');
+        }
+
+        function deployPrompt() {
+            if (hasUnsavedChanges) {
+                alert('Please save your changes before deploying.');
+                return;
+            }
+            
+            // In real implementation, this would deploy to production
+            console.log('Deploying prompt:', currentPrompt);
+            showNotification('Prompt deployed to production!', 'success');
+        }
+
+        function testPrompt() {
+            const testPanel = document.getElementById('testPanel');
+            testPanel.style.display = testPanel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function runTest() {
+            const input = document.querySelector('.test-input').value;
+            const output = document.getElementById('testOutput');
+            
+            // Simulate AI response (in real implementation, this would call the actual AI)
+            output.textContent = 'Testing prompt...\n\nSimulated AI Response:\n{\n  "overall_score": 87,\n  "confidence": 0.92,\n  "scoring_factors": {\n    "role_alignment": 85,\n    "industry_fit": 90,\n    "work_environment": 88,\n    "values_alignment": 85,\n    "growth_opportunity": 90,\n    "deal_breaker_penalty": 0\n  },\n  "alignment_areas": ["product leadership", "technology industry"],\n  "concern_areas": ["company size preference unclear"]\n}';
+        }
+
+        function setEditorMode(mode) {
+            document.querySelectorAll('.toolbar-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'preview') {
+                // In real implementation, this would show formatted preview
+                console.log('Switching to preview mode');
+            }
+        }
+
+        function insertVariable() {
+            const textarea = document.getElementById('promptContent');
+            const variables = ['{job_data}', '{brand_profile}', '{context}', '{user_input}'];
+            const variable = prompt('Select variable to insert:\n' + variables.join('\n'));
+            
+            if (variable && variables.includes(variable)) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const text = textarea.value;
+                textarea.value = text.substring(0, start) + variable + text.substring(end);
+                markAsModified();
+            }
+        }
+
+        function formatPrompt() {
+            // Simple formatting (in real implementation, this would be more sophisticated)
+            const content = document.getElementById('promptContent').value;
+            const formatted = content.replace(/\n\n\n+/g, '\n\n').trim();
+            document.getElementById('promptContent').value = formatted;
+            markAsModified();
+        }
+
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function revertChanges() {
+            if (confirm('Are you sure you want to revert all unsaved changes?')) {
+                loadPrompt(currentPrompt);
+                hasUnsavedChanges = false;
+            }
+        }
+
+        function markAsModified() {
+            const activeItem = document.querySelector('.prompt-item.active');
+            const statusElement = activeItem.querySelector('.prompt-status');
+            statusElement.className = 'prompt-status status-modified';
+            statusElement.textContent = '● Modified';
+            activeItem.classList.add('modified');
+            hasUnsavedChanges = true;
+        }
+
+        function showNotification(message, type) {
+            // Simple notification (in real implementation, this would be a proper toast)
+            alert(message);
+        }
+
+        // Track changes
+        document.getElementById('promptContent').addEventListener('input', () => {
+            markAsModified();
+            validatePrompt();
+        });
+
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        function switchToVersion(version) {
+            // Update active version in sidebar
+            document.querySelectorAll('.version-card').forEach(card => card.classList.remove('active'));
+            event.target.closest('.version-card').classList.add('active');
+            
+            // Load version content (in real implementation, this would fetch from backend)
+            const versions = {
+                '1.3.2': {
+                    content: document.getElementById('promptContent').value,
+                    performance: { score: 94, rating: 4.7, responseTime: '823ms', usage: 1247, successRate: 98.2 }
+                },
+                '1.3.1': {
+                    content: 'You are an AI career advisor analyzing job-candidate alignment.\n\nSCORING CRITERIA (Updated):\n- Role alignment (0-100): How well the role matches career goals\n- Industry fit (0-100): Industry alignment with preferences\n- Work environment (0-100): Culture and work style fit\n- Values alignment (0-100): Company values vs personal values\n- Growth opportunity (0-100): Career development potential\n\nJOB DATA:\n{job_data}\n\nPERSONAL BRAND PROFILE:\n{brand_profile}\n\nAnalyze alignment and return JSON...',
+                    performance: { score: 89, rating: 4.3, responseTime: '756ms', usage: 892, successRate: 96.8 }
+                },
+                '1.3.0': {
+                    content: 'You are an AI career advisor analyzing job-candidate alignment.\n\nSCORING CRITERIA (Original):\n- Role alignment (0-100)\n- Industry fit (0-100)\n- Work environment (0-100)\n- Values alignment (0-100)\n\nJOB DATA:\n{job_data}\n\nPERSONAL BRAND PROFILE:\n{brand_profile}\n\nReturn JSON with scores...',
+                    performance: { score: 82, rating: 3.9, responseTime: '945ms', usage: 634, successRate: 94.1 }
+                },
+                '1.2.5': {
+                    content: 'Analyze job alignment for candidate.\n\nJob: {job_data}\nProfile: {brand_profile}\n\nReturn alignment score.',
+                    performance: { score: 76, rating: 3.4, responseTime: '1203ms', usage: 423, successRate: 89.7 }
+                }
+            };
+            
+            const versionData = versions[version] || versions['1.3.2'];
+            
+            // Update editor content
+            document.getElementById('promptContent').value = versionData.content;
+            document.getElementById('promptVersion').value = version;
+            
+            // Update performance stats
+            updatePerformanceStats(versionData.performance, version);
+            
+            // Update live indicator
+            const liveIndicator = document.querySelector('.live-indicator');
+            if (version === '1.3.2') {
+                liveIndicator.className = 'live-indicator live-active';
+                liveIndicator.textContent = '● LIVE';
+            } else {
+                liveIndicator.className = 'live-indicator live-testing';
+                liveIndicator.textContent = '● VIEWING ' + version;
+            }
+            
+            validatePrompt();
+            showNotification(`Switched to version ${version}`, 'info');
+        }
+        
+        function updatePerformanceStats(performance, version) {
+            // Update current performance section
+            const perfSection = document.querySelector('.current-performance h4');
+            perfSection.textContent = `Current Version (v${version})`;
+            
+            // Update individual metrics
+            const metrics = document.querySelectorAll('.perf-value');
+            metrics[0].textContent = performance.score + '%';
+            metrics[0].className = 'perf-value ' + getPerformanceClass(performance.score);
+            
+            metrics[1].textContent = performance.rating + '/5.0';
+            metrics[1].className = 'perf-value ' + getPerformanceClass(performance.rating * 20);
+            
+            metrics[2].textContent = performance.responseTime;
+            metrics[2].className = 'perf-value perf-good';
+            
+            metrics[3].textContent = performance.usage + ' calls';
+            
+            metrics[4].textContent = performance.successRate + '%';
+            metrics[4].className = 'perf-value ' + getPerformanceClass(performance.successRate);
+        }
+        
+        function getPerformanceClass(score) {
+            if (score >= 90) return 'perf-excellent';
+            if (score >= 80) return 'perf-good';
+            if (score >= 70) return 'perf-warning';
+            return 'perf-poor';
+        }
+        
+        function startABTest() {
+            const versionB = document.querySelector('.ab-test-panel select').value;
+            if (!versionB || versionB === 'Select version...') {
+                alert('Please select Version B for A/B testing');
+                return;
+            }
+            
+            // In real implementation, this would start the A/B test in the backend
+            console.log('Starting A/B test:', '1.3.2', 'vs', versionB);
+            
+            // Update UI to show active test
+            const abPanel = document.querySelector('.ab-test-panel');
+            abPanel.innerHTML = `
+                <div class="ab-test-header">
+                    <span class="ab-test-title">🧪 Active A/B Test</span>
+                    <button class="action-btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="stopABTest()">Stop Test</button>
+                </div>
+                <div class="ab-split">
+                    <div class="ab-version">
+                        <strong>Version A</strong><br>
+                        v1.3.2<br>
+                        <small style="color: #10b981;">94% score</small>
+                    </div>
+                    <div class="ab-version">
+                        <strong>Version B</strong><br>
+                        v${versionB}<br>
+                        <small style="color: #f59e0b;">Testing...</small>
+                    </div>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; text-align: center;">
+                    Running for: 2 hours<br>
+                    <small>Sample size: 156 calls each</small>
+                </div>
+            `;
+            
+            showNotification(`A/B test started: v1.3.2 vs v${versionB}`, 'success');
+        }
+        
+        function stopABTest() {
+            // Reset A/B test panel
+            const abPanel = document.querySelector('.ab-test-panel');
+            abPanel.innerHTML = `
+                <div class="ab-test-header">
+                    <span class="ab-test-title">A/B Test Setup</span>
+                    <button class="action-btn btn-primary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="startABTest()">Start Test</button>
+                </div>
+                <div class="ab-split">
+                    <div class="ab-version">
+                        <strong>Version A</strong><br>
+                        v1.3.2 (Current)
+                    </div>
+                    <div class="ab-version">
+                        <strong>Version B</strong><br>
+                        <select style="width: 100%; margin-top: 4px; font-size: 0.75rem;">
+                            <option>Select version...</option>
+                            <option value="1.3.1">v1.3.1</option>
+                            <option value="1.3.0">v1.3.0</option>
+                            <option value="new">New Draft</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="font-size: 0.8rem; color: #64748b; text-align: center;">
+                    Split: 50% / 50%<br>
+                    <small>Traffic will be automatically divided</small>
+                </div>
+            `;
+            
+            showNotification('A/B test stopped. Results saved to analytics.', 'info');
+        }
+        
+        function deployVersion(version) {
+            if (confirm(`Deploy version ${version} to production?\n\nThis will replace the current live version.`)) {
+                // In real implementation, this would deploy the version
+                console.log('Deploying version:', version);
+                
+                // Update all version badges
+                document.querySelectorAll('.version-badge').forEach(badge => {
+                    badge.className = 'version-badge badge-draft';
+                    badge.textContent = 'DRAFT';
+                });
+                
+                // Update the deployed version
+                const deployedCard = document.querySelector(`[onclick="switchToVersion('${version}')"]`);
+                const deployedBadge = deployedCard.querySelector('.version-badge');
+                deployedBadge.className = 'version-badge badge-live';
+                deployedBadge.textContent = 'LIVE';
+                
+                // Update live indicator
+                const liveIndicator = document.querySelector('.live-indicator');
+                liveIndicator.className = 'live-indicator live-active';
+                liveIndicator.textContent = '● LIVE';
+                
+                showNotification(`Version ${version} deployed successfully!`, 'success');
+            }
+        }
+        
+        // Initialize
+        validatePrompt();
+    </script>
+</body>
+</html>

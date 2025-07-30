@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings - AI Job Search Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1e293b;
+            padding-top: 20px;
+        }
+
+        /* Unified Navigation Styles */
+        .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 0 20px 20px 20px;
+            padding: 15px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid #e2e8f0;
+            padding: 24px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .nav-section {
+            padding: 24px 0;
+        }
+
+        .nav-section-title {
+            padding: 0 24px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+            border-right: 3px solid #1d4ed8;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: white;
+            margin: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 32px 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .content-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .content-description {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .content-body {
+            padding: 40px;
+        }
+
+        /* Settings Cards */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .settings-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .settings-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            margin-right: 12px;
+            color: #3b82f6;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .card-description {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* API Key Management */
+        .api-key-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .api-key-info {
+            flex: 1;
+        }
+
+        .api-key-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .api-key-value {
+            font-family: monospace;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .api-key-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Integration Items */
+        .integration-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .integration-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .integration-info {
+            flex: 1;
+        }
+
+        .integration-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .integration-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .integration-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .main-content {
+                margin: 12px;
+            }
+
+            .content-body {
+                padding: 24px;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="../pages/dashboard_home.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Company Discovery</a>
+                <a href="../pages/job_discovery_company_research.html" class="nav-link">Job Discovery</a>
+                <a href="../pages/application_dashboard.html" class="nav-link">Applications</a>
+                <a href="#" class="nav-link">Interviews</a>
+                <a href="#" class="nav-link">Networking</a>
+                <a href="#" class="nav-link">Events</a>
+                <a href="#" class="nav-link">News</a>
+                <a href="admin_settings.html" class="nav-link active">Settings</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Top Navigation Bar -->
+    <nav style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; padding: 12px 24px; position: sticky; top: 0; z-index: 100;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
+            <!-- Logo/Brand -->
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <a href="#" style="font-size: 1.5rem; font-weight: 700; color: #1e293b; text-decoration: none;">🤖 AI Job Search</a>
+                <div style="height: 24px; width: 1px; background: #e2e8f0;"></div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.9rem;">
+                    <a href="dynamic_resume_optimizer.html" style="color: #64748b; text-decoration: none;">Resume</a>
+                    <span>›</span>
+                    <a href="ai_dashboard_enhanced.html" style="color: #64748b; text-decoration: none;">AI Dashboard</a>
+                    <span>›</span>
+                    <a href="ai_prompt_editor.html" style="color: #64748b; text-decoration: none;">Prompt Editor</a>
+                    <span>›</span>
+                    <span style="color: #3b82f6; font-weight: 500;">Settings</span>
+                </div>
+            </div>
+            
+            <!-- Main Navigation -->
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <a href="dynamic_resume_optimizer.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">📄 Resume Optimizer</a>
+                <a href="application_submission.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">📋 Application Submission</a>
+                <a href="ai_dashboard_enhanced.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">📊 AI Dashboard</a>
+                <a href="ai_prompt_editor.html" style="color: #64748b; text-decoration: none; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">💬 Prompt Editor</a>
+                <a href="admin_settings.html" style="color: #3b82f6; text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eff6ff; border-radius: 8px;">⚙️ Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">⚙️ Settings</div>
+                <div class="sidebar-subtitle">Platform Configuration</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">General</div>
+                <div class="nav-item active" onclick="showSection('profile')">
+                    <span class="nav-icon">👤</span>
+                    Profile & Account
+                </div>
+                <div class="nav-item" onclick="showSection('preferences')">
+                    <span class="nav-icon">🎯</span>
+                    Job Preferences
+                </div>
+                <div class="nav-item" onclick="showSection('notifications')">
+                    <span class="nav-icon">🔔</span>
+                    Notifications
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">AI & Automation</div>
+                <div class="nav-item" onclick="showSection('ai-settings')">
+                    <span class="nav-icon">🤖</span>
+                    AI Configuration
+                </div>
+                <div class="nav-item" onclick="showSection('prompts')">
+                    <span class="nav-icon">💬</span>
+                    Prompt Management
+                </div>
+                <div class="nav-item" onclick="showSection('scoring')">
+                    <span class="nav-icon">📊</span>
+                    Scoring Weights
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Integrations</div>
+                <div class="nav-item" onclick="showSection('api-keys')">
+                    <span class="nav-icon">🔑</span>
+                    API Keys
+                </div>
+                <div class="nav-item" onclick="showSection('api-integrations')">
+                    <span class="nav-icon">🔗</span>
+                    API Integrations
+                </div>
+                <div class="nav-item" onclick="showSection('job-boards')">
+                    <span class="nav-icon">💼</span>
+                    Job Boards
+                </div>
+                <div class="nav-item" onclick="showSection('crm')">
+                    <span class="nav-icon">📈</span>
+                    CRM Integration
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <div class="nav-item" onclick="showSection('security')">
+                    <span class="nav-icon">🔒</span>
+                    Security
+                </div>
+                <div class="nav-item" onclick="showSection('backup')">
+                    <span class="nav-icon">💾</span>
+                    Backup & Export
+                </div>
+                <div class="nav-item" onclick="showSection('logs')">
+                    <span class="nav-icon">📋</span>
+                    System Logs
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Profile & Account Section -->
+            <div id="profile-section" class="content-section">
+                <div class="content-header">
+                    <div class="content-title">Profile & Account</div>
+                    <div class="content-description">Manage your personal information and account settings</div>
+                </div>
+                <div class="content-body">
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">👤</span>
+                                <span class="card-title">Personal Information</span>
+                            </div>
+                            <div class="card-description">Update your basic profile information and contact details.</div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-input" value="Allen Walker" placeholder="Enter your full name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" value="allen.walker@example.com" placeholder="Enter your email">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-input" value="+1 (555) 123-4567" placeholder="Enter your phone number">
+                            </div>
+                            
+                            <button class="btn btn-primary">Update Profile</button>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">🎯</span>
+                                <span class="card-title">Career Profile</span>
+                            </div>
+                            <div class="card-description">Configure your professional background and career objectives.</div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Current Title</label>
+                                <input type="text" class="form-input" value="Senior Program Manager" placeholder="Enter your current title">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Experience Level</label>
+                                <select class="form-select">
+                                    <option value="entry">Entry Level (0-2 years)</option>
+                                    <option value="mid">Mid Level (3-7 years)</option>
+                                    <option value="senior" selected>Senior Level (8-15 years)</option>
+                                    <option value="executive">Executive (15+ years)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Target Salary Range</label>
+                                <input type="text" class="form-input" value="$150,000 - $250,000" placeholder="Enter salary range">
+                            </div>
+                            
+                            <button class="btn btn-primary">Update Career Profile</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Preferences Section -->
+            <div id="preferences-section" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <div class="content-title">Job Preferences</div>
+                    <div class="content-description">Configure your job search criteria and preferences</div>
+                </div>
+                <div class="content-body">
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">📍</span>
+                                <span class="card-title">Location Preferences</span>
+                            </div>
+                            <div class="card-description">Set your preferred work locations and remote work options.</div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Preferred Locations</label>
+                                <input type="text" class="form-input" value="San Francisco, CA; Los Angeles, CA; Remote" placeholder="Enter preferred locations">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Remote Work Preference</label>
+                                <select class="form-select">
+                                    <option value="remote">Fully Remote</option>
+                                    <option value="hybrid" selected>Hybrid</option>
+                                    <option value="onsite">On-site Only</option>
+                                    <option value="flexible">Flexible</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Willing to Relocate</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">🏢</span>
+                                <span class="card-title">Company Preferences</span>
+                            </div>
+                            <div class="card-description">Define your ideal company characteristics and culture.</div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Company Size</label>
+                                <select class="form-select">
+                                    <option value="startup">Startup (1-50)</option>
+                                    <option value="small">Small (51-200)</option>
+                                    <option value="medium" selected>Medium (201-1000)</option>
+                                    <option value="large">Large (1000+)</option>
+                                    <option value="any">Any Size</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Industry Focus</label>
+                                <input type="text" class="form-input" value="Technology, Healthcare, Finance" placeholder="Enter preferred industries">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Company Stage</label>
+                                <select class="form-select">
+                                    <option value="seed">Seed Stage</option>
+                                    <option value="growth">Growth Stage</option>
+                                    <option value="mature" selected>Mature/Established</option>
+                                    <option value="any">Any Stage</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Keys Section -->
+            <div id="api-keys-section" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <div class="content-title">API Keys</div>
+                    <div class="content-description">Manage your API keys for external integrations</div>
+                </div>
+                <div class="content-body">
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <span class="card-icon">🔑</span>
+                            <span class="card-title">API Key Management</span>
+                        </div>
+                        <div class="card-description">Configure API keys for various services and integrations.</div>
+                        
+                        <div class="api-key-item">
+                            <div class="api-key-info">
+                                <div class="api-key-name">OpenAI API Key</div>
+                                <div class="api-key-value">sk-proj-****...****</div>
+                            </div>
+                            <div class="api-key-actions">
+                                <span class="status-indicator status-active">Active</span>
+                                <button class="btn btn-secondary">Edit</button>
+                                <button class="btn btn-danger">Revoke</button>
+                            </div>
+                        </div>
+
+                        <div class="api-key-item">
+                            <div class="api-key-info">
+                                <div class="api-key-name">HubSpot API Key</div>
+                                <div class="api-key-value">pat-na1-****...****</div>
+                            </div>
+                            <div class="api-key-actions">
+                                <span class="status-indicator status-active">Active</span>
+                                <button class="btn btn-secondary">Edit</button>
+                                <button class="btn btn-danger">Revoke</button>
+                            </div>
+                        </div>
+
+                        <div class="api-key-item">
+                            <div class="api-key-info">
+                                <div class="api-key-name">Indeed API Key</div>
+                                <div class="api-key-value">Not configured</div>
+                            </div>
+                            <div class="api-key-actions">
+                                <span class="status-indicator status-inactive">Inactive</span>
+                                <button class="btn btn-primary">Configure</button>
+                            </div>
+                        </div>
+
+                        <div class="api-key-item">
+                            <div class="api-key-info">
+                                <div class="api-key-name">LinkedIn API Key</div>
+                                <div class="api-key-value">Not configured</div>
+                            </div>
+                            <div class="api-key-actions">
+                                <span class="status-indicator status-warning">Pending</span>
+                                <button class="btn btn-primary">Configure</button>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" style="margin-top: 20px;">Add New API Key</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Integrations Section -->
+            <div id="api-integrations-section" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <div class="content-title">API Integrations</div>
+                    <div class="content-description">Enable or disable data sources and configure integration settings</div>
+                </div>
+                <div class="content-body">
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">💼</span>
+                                <span class="card-title">Job Board APIs</span>
+                            </div>
+                            <div class="card-description">Control which job boards are actively pulling job data into your pipeline.</div>
+                            
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Indeed API</div>
+                                    <div class="integration-description">Pull jobs from Indeed's extensive database</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="indeed">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">LinkedIn Jobs API</div>
+                                    <div class="integration-description">Access LinkedIn's professional job network</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="linkedin">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Greenhouse API</div>
+                                    <div class="integration-description">Connect to companies using Greenhouse ATS</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="greenhouse">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Lever API</div>
+                                    <div class="integration-description">Pull jobs from Lever-powered career pages</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-inactive">Inactive</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" data-integration="lever">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">SmartRecruiters API</div>
+                                    <div class="integration-description">Access SmartRecruiters job postings</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-inactive">Inactive</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" data-integration="smartrecruiters">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Workable API</div>
+                                    <div class="integration-description">Connect to Workable-powered job boards</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-warning">Limited</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="workable">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">🏢</span>
+                                <span class="card-title">Company Data APIs</span>
+                            </div>
+                            <div class="card-description">Enrich job postings with detailed company information and insights.</div>
+                            
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Clearbit API</div>
+                                    <div class="integration-description">Company profiles, logos, and business data</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="clearbit">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Crunchbase API</div>
+                                    <div class="integration-description">Startup funding, growth stage, and investor data</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="crunchbase">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Glassdoor API</div>
+                                    <div class="integration-description">Employee reviews, salary data, and company culture</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-warning">Limited</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="glassdoor">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">GitHub API</div>
+                                    <div class="integration-description">Developer profiles and technical skill validation</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="github">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">👥</span>
+                                <span class="card-title">Contact & Network APIs</span>
+                            </div>
+                            <div class="card-description">Enhance networking capabilities with contact enrichment and social data.</div>
+                            
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">HubSpot CRM API</div>
+                                    <div class="integration-description">Contact management and relationship tracking</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="hubspot">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Apollo API</div>
+                                    <div class="integration-description">Contact enrichment and email finding</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-inactive">Inactive</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" data-integration="apollo">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">ZoomInfo API</div>
+                                    <div class="integration-description">Professional contact database and insights</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-inactive">Inactive</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" data-integration="zoominfo">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">LinkedIn Sales Navigator</div>
+                                    <div class="integration-description">Advanced LinkedIn networking and lead generation</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-warning">Limited</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="linkedin-sales">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">🤖</span>
+                                <span class="card-title">AI & Processing APIs</span>
+                            </div>
+                            <div class="card-description">Configure AI services for content generation and analysis.</div>
+                            
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">OpenAI API</div>
+                                    <div class="integration-description">GPT-4 for resume optimization and content generation</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="openai">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Anthropic Claude API</div>
+                                    <div class="integration-description">Alternative AI model for content analysis</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-inactive">Inactive</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" data-integration="anthropic">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-name">Supabase API</div>
+                                    <div class="integration-description">Database and real-time data synchronization</div>
+                                </div>
+                                <div class="integration-controls">
+                                    <span class="status-indicator status-active">Active</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked data-integration="supabase">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Integration Summary -->
+                    <div class="settings-card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <span class="card-icon">📊</span>
+                            <span class="card-title">Integration Summary</span>
+                        </div>
+                        <div class="card-description">Overview of your active data sources and their status.</div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px;">
+                            <div style="text-align: center; padding: 16px; background: #dcfce7; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #166534;">9</div>
+                                <div style="color: #166534; font-weight: 500;">Active APIs</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: #fef3c7; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #92400e;">3</div>
+                                <div style="color: #92400e; font-weight: 500;">Limited Access</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: #fef2f2; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #991b1b;">5</div>
+                                <div style="color: #991b1b; font-weight: 500;">Inactive APIs</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: #f0f9ff; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #1e40af;">17</div>
+                                <div style="color: #1e40af; font-weight: 500;">Total Integrations</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
+                            <button class="btn btn-primary" onclick="saveIntegrationSettings()">Save Changes</button>
+                            <button class="btn btn-secondary" onclick="testAllConnections()">Test All Connections</button>
+                            <button class="btn btn-secondary" onclick="refreshIntegrationStatus()">Refresh Status</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Settings Section -->
+            <div id="ai-settings-section" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <div class="content-title">AI Configuration</div>
+                    <div class="content-description">Configure AI models and processing settings</div>
+                </div>
+                <div class="content-body">
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">🤖</span>
+                                <span class="card-title">AI Model Settings</span>
+                            </div>
+                            <div class="card-description">Configure which AI models to use for different tasks.</div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Primary AI Model</label>
+                                <select class="form-select">
+                                    <option value="gpt-4" selected>GPT-4 (Recommended)</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    <option value="claude-3">Claude 3</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Response Temperature</label>
+                                <input type="range" min="0" max="1" step="0.1" value="0.7" class="form-input">
+                                <small>Controls creativity vs consistency (0.7 recommended)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Enable AI Caching</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <span class="card-icon">⚡</span>
+                                <span class="card-title">Performance Settings</span>
+                            </div>
+                            <div class="card-description">Optimize AI performance and resource usage.</div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Max Concurrent Requests</label>
+                                <input type="number" class="form-input" value="5" min="1" max="20">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Request Timeout (seconds)</label>
+                                <input type="number" class="form-input" value="30" min="10" max="120">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Auto-retry Failed Requests</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            const section = document.getElementById(sectionId + '-section');
+            if (section) {
+                section.style.display = 'block';
+            }
+            
+            // Add active class to clicked nav item
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        // Initialize tooltips and form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form validation
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showNotification('Settings saved successfully!', 'success');
+                });
+            });
+
+            // Add toggle switch functionality
+            const toggles = document.querySelectorAll('.toggle-switch input');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    if (this.dataset.integration) {
+                        handleIntegrationToggle(this.dataset.integration, this.checked);
+                    } else {
+                        console.log('Toggle changed:', this.checked);
+                    }
+                });
+            });
+
+            // Initialize integration summary
+            updateIntegrationSummary();
+        });
+
+        function handleIntegrationToggle(integrationId, isEnabled) {
+            console.log(`Integration ${integrationId} ${isEnabled ? 'enabled' : 'disabled'}`);
+            
+            // Update status indicator
+            const integrationItem = document.querySelector(`[data-integration="${integrationId}"]`).closest('.integration-item');
+            const statusIndicator = integrationItem.querySelector('.status-indicator');
+            
+            if (isEnabled) {
+                statusIndicator.textContent = 'Active';
+                statusIndicator.className = 'status-indicator status-active';
+            } else {
+                statusIndicator.textContent = 'Inactive';
+                statusIndicator.className = 'status-indicator status-inactive';
+            }
+            
+            // Update integration summary
+            updateIntegrationSummary();
+            
+            // Show notification
+            showNotification(`${integrationId.charAt(0).toUpperCase() + integrationId.slice(1)} integration ${isEnabled ? 'enabled' : 'disabled'}`, 'success');
+        }
+
+        function updateIntegrationSummary() {
+            const allToggles = document.querySelectorAll('[data-integration]');
+            let activeCount = 0;
+            let limitedCount = 0;
+            let inactiveCount = 0;
+            
+            allToggles.forEach(toggle => {
+                const statusIndicator = toggle.closest('.integration-item').querySelector('.status-indicator');
+                if (statusIndicator.classList.contains('status-active')) {
+                    activeCount++;
+                } else if (statusIndicator.classList.contains('status-warning')) {
+                    limitedCount++;
+                } else {
+                    inactiveCount++;
+                }
+            });
+            
+            // Update summary cards
+            const summaryCards = document.querySelectorAll('#api-integrations-section .settings-card:last-child div[style*="text-align: center"]');
+            if (summaryCards.length >= 4) {
+                summaryCards[0].querySelector('div:first-child').textContent = activeCount;
+                summaryCards[1].querySelector('div:first-child').textContent = limitedCount;
+                summaryCards[2].querySelector('div:first-child').textContent = inactiveCount;
+                summaryCards[3].querySelector('div:first-child').textContent = allToggles.length;
+            }
+        }
+
+        function saveIntegrationSettings() {
+            // Collect all integration states
+            const integrationStates = {};
+            document.querySelectorAll('[data-integration]').forEach(toggle => {
+                integrationStates[toggle.dataset.integration] = toggle.checked;
+            });
+            
+            console.log('Saving integration settings:', integrationStates);
+            
+            // Simulate API call
+            setTimeout(() => {
+                showNotification('Integration settings saved successfully!', 'success');
+            }, 500);
+        }
+
+        function testAllConnections() {
+            showNotification('Testing all API connections...', 'info');
+            
+            // Simulate connection testing
+            setTimeout(() => {
+                const activeIntegrations = document.querySelectorAll('[data-integration]:checked');
+                showNotification(`Tested ${activeIntegrations.length} active connections. All tests passed!`, 'success');
+            }, 2000);
+        }
+
+        function refreshIntegrationStatus() {
+            showNotification('Refreshing integration status...', 'info');
+            
+            // Simulate status refresh
+            setTimeout(() => {
+                // Randomly update some statuses for demo purposes
+                const integrations = document.querySelectorAll('.integration-item');
+                integrations.forEach((item, index) => {
+                    if (Math.random() > 0.8) { // 20% chance to change status
+                        const statusIndicator = item.querySelector('.status-indicator');
+                        const currentStatus = statusIndicator.textContent;
+                        if (currentStatus === 'Inactive') {
+                            statusIndicator.textContent = 'Active';
+                            statusIndicator.className = 'status-indicator status-active';
+                        }
+                    }
+                });
+                
+                updateIntegrationSummary();
+                showNotification('Integration status refreshed!', 'success');
+            }, 1500);
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'success' ? '#10b981' : type === 'info' ? '#3b82f6' : '#ef4444'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                font-weight: 500;
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

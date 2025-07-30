@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prospecting Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        
+        /* Navigation */
+        .top-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 15px; margin-bottom: 20px; padding: 15px 0; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .nav-container { display: flex; justify-content: center; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-link { color: #64748b; text-decoration: none; font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+        .nav-link:hover { background: #f1f5f9; color: #334155; }
+        .nav-link.active { background: #667eea; color: white; }
+        
+        .breadcrumbs { background: rgba(255, 255, 255, 0.9); padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; color: #64748b; }
+        .breadcrumbs a { color: #667eea; text-decoration: none; }
+        
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { font-size: 2.8em; margin-bottom: 10px; font-weight: 700; }
+        .subtitle { font-size: 1.3em; opacity: 0.9; margin-bottom: 25px; }
+        .search-container { max-width: 600px; margin: 0 auto; position: relative; }
+        .search-wrapper { position: relative; }
+        .universal-search { width: 100%; padding: 15px 60px 15px 20px; border: none; border-radius: 50px; font-size: 1.1rem; background: rgba(255,255,255,0.95); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .universal-search::placeholder { color: #64748b; }
+        .search-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 25px; cursor: pointer; font-size: 0.9rem; }
+        .search-btn:hover { background: #5a67d8; }
+        
+        .saved-prompts { margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .prompt-tag { background: rgba(255,255,255,0.2); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.3); }
+        .prompt-tag:hover { background: rgba(255,255,255,0.3); }
+        
+        /* Search Results Header */
+        .search-results-header { background: #f8fafc; padding: 20px 30px; border-bottom: 1px solid #e2e8f0; text-align: center; display: none; }
+        .search-results-header.show { display: block; }
+        .search-query { font-size: 1.1em; color: #1e293b; margin-bottom: 5px; font-weight: 600; }
+        .search-meta { font-size: 0.9em; color: #64748b; }
+        
+        /* Enhanced Main Content for Results */
+        .main-content.results-mode { grid-template-columns: 1fr 1fr; gap: 0; }
+        .main-content.results-mode .company-column, .main-content.results-mode .job-column { background: white; color: #1e293b; padding: 30px; }
+        
+        /* Result Items - Row Layout */
+        .company-result, .job-result {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .company-result:hover, .job-result:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #667eea;
+        }
+
+        .company-result.selected, .job-result.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        /* Checkbox */
+        .result-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        /* Main Content Area */
+        .result-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .company-name, .job-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.0em;
+            margin: 0;
+        }
+
+        .match-score {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .company-sector, .job-company {
+            color: #64748b;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            white-space: nowrap;
+        }
+
+        .tag.highlight {
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .result-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .workflow-btn {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8em;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .workflow-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .workflow-btn.primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .workflow-btn.primary:hover {
+            background: #5a67d8;
+        }
+
+        .workflow-btn.success {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .workflow-btn.success:hover {
+            background: #059669;
+        }
+
+        .workflow-btn.warning {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+
+        .workflow-btn.warning:hover {
+            background: #d97706;
+        }
+
+        /* Bulk Actions Bar */
+        .bulk-actions {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bulk-actions.show {
+            display: flex;
+        }
+
+        .bulk-count {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .bulk-btn {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .bulk-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .bulk-btn.primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .bulk-btn.primary:hover {
+            background: #5a67d8;
+        }
+
+        /* Results Column Headers */
+        .results-column-header { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; }
+        .results-column-title { font-size: 1.4em; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+        .results-count { background: #667eea; color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.8em; font-weight: 600; }
+        
+        /* Stats Bar */
+        .stats-bar { background: #f8fafc; padding: 20px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.8em; font-weight: 700; color: #1e293b; }
+        .stat-label { font-size: 0.9rem; color: #64748b; margin-top: 4px; }
+        
+        /* Main Content */
+        .main-content { display: grid; grid-template-columns: 1fr 1fr; min-height: 600px; }
+        
+        /* Company Column */
+        .company-column { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; position: relative; overflow: hidden; }
+        .company-column::before { content: ''; position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(30px, -30px); }
+        .column-header { margin-bottom: 30px; }
+        .column-title { font-size: 2.2em; font-weight: 700; margin-bottom: 10px; }
+        .column-subtitle { font-size: 1.1em; opacity: 0.9; line-height: 1.4; }
+        
+        .sector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .sector-btn { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .sector-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); transform: translateY(-2px); }
+        .sector-icon { font-size: 1.5em; margin-bottom: 8px; }
+        .sector-name { font-weight: 600; margin-bottom: 4px; }
+        .sector-count { font-size: 0.9em; opacity: 0.8; }
+        
+        .trending-section { margin-top: 30px; }
+        .trending-title { font-size: 1.3em; font-weight: 600; margin-bottom: 15px; }
+        .trending-item { background: rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .trending-company { font-weight: 500; }
+        .trending-tag { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+        
+        .company-cta { background: #e74c3c; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 20px; }
+        .company-cta:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(231,76,60,0.3); }
+        
+        /* Job Column */
+        .job-column { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 40px; position: relative; overflow: hidden; }
+        .job-column::before { content: ''; position: absolute; top: 0; left: 0; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(-20px, -20px); }
+        
+        .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .role-btn { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .role-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); transform: translateY(-2px); }
+        .role-icon { font-size: 1.5em; margin-bottom: 8px; }
+        .role-name { font-weight: 600; margin-bottom: 4px; }
+        .role-count { font-size: 0.9em; opacity: 0.8; }
+        
+        .filters-section { margin-bottom: 25px; }
+        .filter-group { margin-bottom: 20px; }
+        .filter-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; }
+        .filter-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-tag { background: rgba(255,255,255,0.2); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; cursor: pointer; transition: all 0.2s; }
+        .filter-tag:hover, .filter-tag.active { background: rgba(255,255,255,0.3); }
+        
+        .hot-jobs { margin-top: 25px; }
+        .hot-job-item { background: rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; }
+        .job-title { font-weight: 600; margin-bottom: 4px; }
+        .job-company { font-size: 0.9em; opacity: 0.8; margin-bottom: 4px; }
+        .job-match { background: #27ae60; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+        
+        .job-cta { background: #27ae60; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 20px; }
+        .job-cta:hover { background: #219a52; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(39,174,96,0.3); }
+        
+        /* AI Suggestions */
+        .ai-suggestions { background: rgba(255,255,255,0.95); margin: 30px; padding: 25px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        .ai-title { font-size: 1.3em; font-weight: 600; color: #1e293b; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .ai-icon { background: linear-gradient(135deg, #667eea, #764ba2); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; }
+        .suggestion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .suggestion-item { background: #f8fafc; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea; }
+        .suggestion-text { color: #1e293b; font-weight: 500; margin-bottom: 5px; }
+        .suggestion-reason { color: #64748b; font-size: 0.9em; }
+        
+        @media (max-width: 1024px) { 
+            .main-content { grid-template-columns: 1fr; }
+            .sector-grid, .role-grid { grid-template-columns: 1fr; }
+            .stats-bar { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="dashboard_home.html" class="nav-link">Home</a>
+                <a href="prospecting_dashboard.html" class="nav-link active">Prospecting</a>
+                <a href="company_discovery.html" class="nav-link">Company Discovery</a>
+                <a href="job_discovery_company_research.html" class="nav-link">Job Discovery</a>
+                <a href="application_dashboard.html" class="nav-link">Applications</a>
+                <a href="#" class="nav-link">Interviews</a>
+                <a href="#" class="nav-link">Networking</a>
+                <a href="#" class="nav-link">Events</a>
+                <a href="job_market_news.html" class="nav-link">News</a>
+                <a href="../demos/admin_settings.html" class="nav-link">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="breadcrumbs">
+        <a href="dashboard_home.html">Home</a> › Prospecting Dashboard
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Prospecting Mission Control</h1>
+            <p class="subtitle">Choose your strategy: Target specific companies or discover perfect roles</p>
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" id="aiSearch" class="universal-search" placeholder="Try: 'I'm looking for project management positions in tech-forward, fast growing, green tech companies'">
+                    <button class="search-btn" onclick="performAISearch()">🔍 Search</button>
+                </div>
+                <div class="saved-prompts">
+                    <div class="prompt-tag" onclick="usePrompt('Climate tech startups with product management roles')">🌱 Climate PM Roles</div>
+                    <div class="prompt-tag" onclick="usePrompt('AI/ML companies hiring data scientists in SF Bay Area')">🤖 AI Data Science</div>
+                    <div class="prompt-tag" onclick="usePrompt('Fast-growing fintech companies with strategy positions')">💳 FinTech Strategy</div>
+                    <div class="prompt-tag" onclick="usePrompt('Remote-first companies in healthcare technology')">🏥 Remote HealthTech</div>
+                </div>
+                
+
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value">247</div>
+                <div class="stat-label">Target Companies</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">1,432</div>
+                <div class="stat-label">Relevant Jobs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">89%</div>
+                <div class="stat-label">Profile Match</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">156</div>
+                <div class="stat-label">New This Week</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Company-Centric Column -->
+            <div class="column company-column">
+                <h2 class="column-title">🏢 Company-Centric Prospecting</h2>
+                <p class="column-subtitle">"I want to work for the best proptech company in SF"</p>
+                
+                <!-- Dynamic Search Results for Companies -->
+                <div id="companySearchResults" class="search-results-section" style="display: none;">
+                    <div class="results-header">
+                        <h3 class="results-title">🏢 Matching Companies <span class="result-count" id="companyCount">0</span></h3>
+                        <div class="results-meta" id="companyResultsMeta">AI-powered search • <span id="companySearchTime">0.0s</span></div>
+                    </div>
+                    
+                    <!-- Bulk Actions Bar for Companies -->
+                    <div id="companyBulkActions" class="bulk-actions">
+                        <div class="bulk-count" id="companyBulkCount">0 selected</div>
+                        <button class="bulk-btn primary" onclick="bulkAddToHubSpot('company')">
+                            📊 Add to HubSpot
+                        </button>
+                        <button class="bulk-btn" onclick="bulkAddToWorklist('company')">
+                            📋 Add to Worklist
+                        </button>
+                        <button class="bulk-btn" onclick="clearCompanySelection()">
+                            ✕ Clear Selection
+                        </button>
+                    </div>
+                    
+                    <div id="companyResultsList" class="results-list">
+                        <!-- Dynamic company results will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Default Company Content (shown when no search) -->
+                <div id="defaultCompanyContent" class="default-content">
+                    <!-- Sector Buttons -->
+                    <div class="sector-buttons">
+                        <button class="sector-btn active" onclick="filterBySector('climate-tech')">🌱 Climate Tech</button>
+                        <button class="sector-btn" onclick="filterBySector('ai-ml')">🤖 AI/ML</button>
+                        <button class="sector-btn" onclick="filterBySector('fintech')">💰 FinTech</button>
+                        <button class="sector-btn" onclick="filterBySector('proptech')">🏠 PropTech</button>
+                        <button class="sector-btn" onclick="filterBySector('healthtech')">🏥 HealthTech</button>
+                        <button class="sector-btn" onclick="filterBySector('logistics')">📦 Logistics</button>
+                    </div>
+                    
+                    <!-- Trending Companies -->
+                    <div class="trending-section">
+                        <h3>🔥 Trending Companies</h3>
+                        <div class="trending-companies">
+                            <div class="company-card" onclick="viewCompany('watershed')">
+                                <div class="company-name">Watershed</div>
+                                <div class="company-info">Climate Tech • Series B • 200+ employees</div>
+                                <div class="company-stats">15 open jobs • Fast growing</div>
+                            </div>
+                            <div class="company-card" onclick="viewCompany('ramp')">
+                                <div class="company-name">Ramp</div>
+                                <div class="company-info">FinTech • Series C • 500+ employees</div>
+                                <div class="company-stats">25 open jobs • Hiring actively</div>
+                            </div>
+                            <div class="company-card" onclick="viewCompany('notion')">
+                                <div class="company-name">Notion</div>
+                                <div class="company-info">Productivity • Private • 300+ employees</div>
+                                <div class="company-stats">12 open jobs • Remote-first</div>
+                            </div>
+                        </div>
+                        <button class="discover-btn" onclick="window.location.href='company_discovery.html'">Discover More Companies →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Job-Centric Column -->
+            <div class="column job-column">
+                <h2 class="column-title">💼 Job-Centric Prospecting</h2>
+                <p class="column-subtitle">"I want to be a project manager"</p>
+                
+                <!-- Dynamic Search Results for Jobs -->
+                <div id="jobSearchResults" class="search-results-section" style="display: none;">
+                    <div class="results-header">
+                        <h3 class="results-title">💼 Matching Jobs <span class="result-count" id="jobCount">0</span></h3>
+                        <div class="results-meta" id="jobResultsMeta">AI-powered search • <span id="jobSearchTime">0.0s</span></div>
+                    </div>
+                    
+                    <!-- Bulk Actions Bar for Jobs -->
+                    <div id="jobBulkActions" class="bulk-actions">
+                        <div class="bulk-count" id="jobBulkCount">0 selected</div>
+                        <button class="bulk-btn primary" onclick="bulkSaveToWorklist('job')">
+                            📋 Save to Worklist
+                        </button>
+                        <button class="bulk-btn" onclick="clearJobSelection()">
+                            ✕ Clear Selection
+                        </button>
+                    </div>
+                    
+                    <div id="jobResultsList" class="results-list">
+                        <!-- Dynamic job results will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Default Job Content (shown when no search) -->
+                <div id="defaultJobContent" class="default-content">
+                    <!-- Role Buttons -->
+                    <div class="role-buttons">
+                        <button class="role-btn active" onclick="filterByRole('project-manager')">📋 Project Manager</button>
+                        <button class="role-btn" onclick="filterByRole('product-manager')">🚀 Product Manager</button>
+                        <button class="role-btn" onclick="filterByRole('program-manager')">📊 Program Manager</button>
+                        <button class="role-btn" onclick="filterByRole('operations')">⚙️ Operations</button>
+                        <button class="role-btn" onclick="filterByRole('strategy')">🎯 Strategy</button>
+                        <button class="role-btn" onclick="filterByRole('consulting')">💡 Consulting</button>
+                    </div>
+                    
+                    <!-- Experience & Work Style Filters -->
+                    <div class="filter-section">
+                        <div class="filter-group">
+                            <label>Experience Level:</label>
+                            <select class="filter-select" onchange="filterByExperience(this.value)">
+                                <option value="all">All Levels</option>
+                                <option value="entry">Entry Level (0-2 years)</option>
+                                <option value="mid" selected>Mid Level (3-7 years)</option>
+                                <option value="senior">Senior Level (8-15 years)</option>
+                                <option value="executive">Executive (15+ years)</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Work Style:</label>
+                            <select class="filter-select" onchange="filterByWorkStyle(this.value)">
+                                <option value="all">All Styles</option>
+                                <option value="remote">Remote</option>
+                                <option value="hybrid" selected>Hybrid</option>
+                                <option value="onsite">On-site</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Hot Jobs Feed -->
+                    <div class="hot-jobs-section">
+                        <h3>🔥 Hot Jobs This Week</h3>
+                        <div class="hot-jobs">
+                            <div class="job-card" onclick="viewJob('watershed-pm')">
+                                <div class="job-title">Senior Product Manager</div>
+                                <div class="job-company">Watershed • San Francisco, CA</div>
+                                <div class="job-match">96% match • Posted 2 days ago</div>
+                            </div>
+                            <div class="job-card" onclick="viewJob('ramp-pm')">
+                                <div class="job-title">Program Manager - Growth</div>
+                                <div class="job-company">Ramp • New York, NY</div>
+                                <div class="job-match">94% match • Posted 1 day ago</div>
+                            </div>
+                            <div class="job-card" onclick="viewJob('notion-pm')">
+                                <div class="job-title">Technical Program Manager</div>
+                                <div class="job-company">Notion • Remote</div>
+                                <div class="job-match">92% match • Posted 3 days ago</div>
+                            </div>
+                        </div>
+                        <button class="discover-btn" onclick="window.location.href='job_discovery.html'">Discover More Jobs →</button>
+                    </div>
+                </div>
+            </div>
+
+        <!-- AI Suggestions -->
+        <div class="ai-suggestions">
+            <h3 class="ai-title">
+                <span class="ai-icon">🤖</span>
+                AI-Powered Recommendations
+            </h3>
+            <div class="suggestion-grid">
+                <div class="suggestion-item">
+                    <div class="suggestion-text">Explore Climate Tech startups in Series A/B</div>
+                    <div class="suggestion-reason">Based on your sustainability interests and growth-stage preference</div>
+                </div>
+                <div class="suggestion-item">
+                    <div class="suggestion-text">Consider Product Strategy roles at AI companies</div>
+                    <div class="suggestion-reason">Perfect match for your PM experience + AI curiosity</div>
+                </div>
+                <div class="suggestion-item">
+                    <div class="suggestion-text">Target B2B SaaS companies with 100-500 employees</div>
+                    <div class="suggestion-reason">Sweet spot for impact and growth based on your background</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AI Search Functionality
+        async function performAISearch() {
+            const query = document.getElementById('aiSearch').value;
+            if (!query.trim()) return;
+
+            // Show loading state
+            showNotification('🔍 Searching for matches...', 'info');
+
+            // Hide default content
+            document.getElementById('defaultCompanyContent').style.display = 'none';
+            document.getElementById('defaultJobContent').style.display = 'none';
+
+            // Show search results sections
+            document.getElementById('companySearchResults').style.display = 'block';
+            document.getElementById('jobSearchResults').style.display = 'block';
+
+            // Simulate API call delay
+            setTimeout(() => {
+                displayMockResults(query);
+                showNotification('✅ Found 10 companies and 10 jobs matching your search!', 'success');
+            }, 1500);
+        }
+
+        // Display mock search results for requirements baseline
+        function displayMockResults(query) {
+            // Mock company data
+            const mockCompanies = [
+                {
+                    id: 'comp1',
+                    name: 'Watershed',
+                    sector: 'Climate Tech',
+                    funding: 'Series B',
+                    employees: '200+',
+                    score: 96,
+                    tags: ['Fast Growing', 'Remote-First', 'B2B SaaS']
+                },
+                {
+                    id: 'comp2',
+                    name: 'Ramp',
+                    sector: 'FinTech',
+                    funding: 'Series C',
+                    employees: '500+',
+                    score: 94,
+                    tags: ['Hiring Actively', 'NYC', 'Expense Management']
+                },
+                {
+                    id: 'comp3',
+                    name: 'Notion',
+                    sector: 'Productivity',
+                    funding: 'Private',
+                    employees: '300+',
+                    score: 92,
+                    tags: ['Remote-First', 'Product-Led', 'Global']
+                },
+                {
+                    id: 'comp4',
+                    name: 'Stripe',
+                    sector: 'FinTech',
+                    funding: 'Public',
+                    employees: '4000+',
+                    score: 91,
+                    tags: ['Payments', 'Global', 'Developer Tools']
+                },
+                {
+                    id: 'comp5',
+                    name: 'Figma',
+                    sector: 'Design Tools',
+                    funding: 'Private',
+                    employees: '800+',
+                    score: 89,
+                    tags: ['Design', 'Collaboration', 'Creative']
+                },
+                {
+                    id: 'comp6',
+                    name: 'Canva',
+                    sector: 'Design Tools',
+                    funding: 'Private',
+                    employees: '3000+',
+                    score: 88,
+                    tags: ['Consumer', 'Global', 'Creative']
+                },
+                {
+                    id: 'comp7',
+                    name: 'Airtable',
+                    sector: 'Productivity',
+                    funding: 'Series F',
+                    employees: '1000+',
+                    score: 87,
+                    tags: ['No-Code', 'Database', 'Workflow']
+                },
+                {
+                    id: 'comp8',
+                    name: 'Webflow',
+                    sector: 'Web Development',
+                    funding: 'Series B',
+                    employees: '500+',
+                    score: 86,
+                    tags: ['No-Code', 'Design', 'Web']
+                },
+                {
+                    id: 'comp9',
+                    name: 'Linear',
+                    sector: 'Productivity',
+                    funding: 'Series B',
+                    employees: '50+',
+                    score: 85,
+                    tags: ['Developer Tools', 'Fast Growing', 'Remote']
+                },
+                {
+                    id: 'comp10',
+                    name: 'Retool',
+                    sector: 'Developer Tools',
+                    funding: 'Series C',
+                    employees: '300+',
+                    score: 84,
+                    tags: ['Internal Tools', 'B2B', 'Fast Growing']
+                }
+            ];
+
+            // Mock job data
+            const mockJobs = [
+                {
+                    id: 'job1',
+                    title: 'Senior Product Manager',
+                    company: 'Watershed',
+                    location: 'San Francisco, CA',
+                    salary: '$160k - $220k',
+                    posted: '2 days ago',
+                    score: 96,
+                    tags: ['Climate Tech', 'B2B SaaS', 'Remote OK']
+                },
+                {
+                    id: 'job2',
+                    title: 'Program Manager - Growth',
+                    company: 'Ramp',
+                    location: 'New York, NY',
+                    salary: '$140k - $180k',
+                    posted: '1 day ago',
+                    score: 94,
+                    tags: ['FinTech', 'Growth', 'Hybrid']
+                },
+                {
+                    id: 'job3',
+                    title: 'Technical Program Manager',
+                    company: 'Notion',
+                    location: 'Remote',
+                    salary: '$150k - $200k',
+                    posted: '3 days ago',
+                    score: 92,
+                    tags: ['Remote', 'Technical', 'Global']
+                },
+                {
+                    id: 'job4',
+                    title: 'Product Strategy Manager',
+                    company: 'Stripe',
+                    location: 'San Francisco, CA',
+                    salary: '$170k - $240k',
+                    posted: '1 day ago',
+                    score: 91,
+                    tags: ['Strategy', 'Payments', 'Senior']
+                },
+                {
+                    id: 'job5',
+                    title: 'Senior Program Manager',
+                    company: 'Figma',
+                    location: 'San Francisco, CA',
+                    salary: '$155k - $210k',
+                    posted: '4 days ago',
+                    score: 89,
+                    tags: ['Design Tools', 'Program Management', 'Creative']
+                },
+                {
+                    id: 'job6',
+                    title: 'Operations Manager',
+                    company: 'Canva',
+                    location: 'Sydney, Australia',
+                    salary: '$120k - $160k AUD',
+                    posted: '2 days ago',
+                    score: 88,
+                    tags: ['Operations', 'Global', 'Consumer']
+                },
+                {
+                    id: 'job7',
+                    title: 'Product Manager - Platform',
+                    company: 'Airtable',
+                    location: 'San Francisco, CA',
+                    salary: '$145k - $195k',
+                    posted: '5 days ago',
+                    score: 87,
+                    tags: ['Platform', 'No-Code', 'B2B']
+                },
+                {
+                    id: 'job8',
+                    title: 'Growth Program Manager',
+                    company: 'Webflow',
+                    location: 'San Francisco, CA',
+                    salary: '$135k - $175k',
+                    posted: '3 days ago',
+                    score: 86,
+                    tags: ['Growth', 'Web Development', 'Marketing']
+                },
+                {
+                    id: 'job9',
+                    title: 'Product Manager',
+                    company: 'Linear',
+                    location: 'Remote',
+                    salary: '$140k - $190k',
+                    posted: '1 day ago',
+                    score: 85,
+                    tags: ['Remote', 'Developer Tools', 'Early Stage']
+                },
+                {
+                    id: 'job10',
+                    title: 'Technical Product Manager',
+                    company: 'Retool',
+                    location: 'San Francisco, CA',
+                    salary: '$150k - $200k',
+                    posted: '6 days ago',
+                    score: 84,
+                    tags: ['Technical', 'Developer Tools', 'Internal Tools']
+                }
+            ];
+
+            // Update result counts and metadata
+            document.getElementById('companyCount').textContent = mockCompanies.length;
+            document.getElementById('jobCount').textContent = mockJobs.length;
+            document.getElementById('companySearchTime').textContent = '1.2s';
+            document.getElementById('jobSearchTime').textContent = '1.2s';
+
+            // Render company results
+            renderCompanyResults(mockCompanies);
+            
+            // Render job results
+            renderJobResults(mockJobs);
+        }
+
+        // Render company results
+        function renderCompanyResults(companies) {
+            const resultsList = document.getElementById('companyResultsList');
+            resultsList.innerHTML = companies.map(company => `
+                <div class="result-row" data-id="${company.id}">
+                    <input type="checkbox" class="result-checkbox" data-type="company" data-id="${company.id}" onchange="handleCheckboxChange('company')">
+                    <div class="result-content">
+                        <div class="result-header">
+                            <h4 class="result-title">${company.name}</h4>
+                            <div class="result-score">${company.score}% match</div>
+                        </div>
+                        <div class="result-details">
+                            <span class="result-info">${company.sector} • ${company.funding} • ${company.employees} employees</span>
+                        </div>
+                        <div class="result-tags">
+                            ${company.tags.map(tag => `<span class="result-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="action-btn primary" onclick="launchWorkflow('company', '${company.id}', 'hubspot')">
+                            📊 Add to HubSpot
+                        </button>
+                        <button class="action-btn" onclick="launchWorkflow('company', '${company.id}', 'worklist')">
+                            📋 Add to Worklist
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render job results
+        function renderJobResults(jobs) {
+            const resultsList = document.getElementById('jobResultsList');
+            resultsList.innerHTML = jobs.map(job => `
+                <div class="result-row" data-id="${job.id}">
+                    <input type="checkbox" class="result-checkbox" data-type="job" data-id="${job.id}" onchange="handleCheckboxChange('job')">
+                    <div class="result-content">
+                        <div class="result-header">
+                            <h4 class="result-title">${job.title}</h4>
+                            <div class="result-score">${job.score}% match</div>
+                        </div>
+                        <div class="result-details">
+                            <span class="result-info">${job.company} • ${job.location}</span>
+                            <span class="result-salary">${job.salary}</span>
+                        </div>
+                        <div class="result-meta">
+                            <span class="result-posted">Posted ${job.posted}</span>
+                        </div>
+                        <div class="result-tags">
+                            ${job.tags.map(tag => `<span class="result-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="action-btn primary" onclick="launchWorkflow('job', '${job.id}', 'apply')">
+                            🚀 Apply
+                        </button>
+                        <button class="action-btn" onclick="launchWorkflow('job', '${job.id}', 'worklist')">
+                            📋 Save to Worklist
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search functionality with mock data is implemented above
+
+        // Old display function removed - using new implementation above
+
+        // Selection tracking
+        let selectedCompanies = new Set();
+        let selectedJobs = new Set();
+
+        // Checkbox selection handlers
+        function toggleCompanySelection(companyId) {
+            const checkbox = document.querySelector(`[data-id="${companyId}"] .result-checkbox`);
+            const resultRow = document.querySelector(`[data-id="${companyId}"]`);
+            
+            if (checkbox.checked) {
+                selectedCompanies.add(companyId);
+                resultRow.classList.add('selected');
+            } else {
+                selectedCompanies.delete(companyId);
+                resultRow.classList.remove('selected');
+            }
+            
+            updateCompanyBulkActions();
+        }
+
+        function toggleJobSelection(jobId) {
+            const checkbox = document.querySelector(`[data-id="${jobId}"] .result-checkbox`);
+            const resultRow = document.querySelector(`[data-id="${jobId}"]`);
+            
+            if (checkbox.checked) {
+                selectedJobs.add(jobId);
+                resultRow.classList.add('selected');
+            } else {
+                selectedJobs.delete(jobId);
+                resultRow.classList.remove('selected');
+            }
+            
+            updateJobBulkActions();
+        }
+
+        // Bulk action UI updates
+        function updateCompanyBulkActions() {
+            const bulkActions = document.getElementById('companyBulkActions');
+            const bulkCount = document.getElementById('companyBulkCount');
+            
+            if (selectedCompanies.size > 0) {
+                bulkActions.classList.add('show');
+                bulkCount.textContent = `${selectedCompanies.size} selected`;
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        function updateJobBulkActions() {
+            const bulkActions = document.getElementById('jobBulkActions');
+            const bulkCount = document.getElementById('jobBulkCount');
+            
+            if (selectedJobs.size > 0) {
+                bulkActions.classList.add('show');
+                bulkCount.textContent = `${selectedJobs.size} selected`;
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        // Individual workflow handlers
+        function addToHubSpot(companyId) {
+            showNotification(`${getCompanyName(companyId)} added to HubSpot!`, 'success');
+            console.log('Added company to HubSpot:', companyId);
+        }
+
+        function addToCompanyWorklist(companyId) {
+            showNotification(`${getCompanyName(companyId)} added to research worklist!`, 'success');
+            console.log('Added company to worklist:', companyId);
+        }
+
+        function startJobApplication(jobId) {
+            showNotification(`Starting Application Compiler for ${getJobTitle(jobId)}...`, 'info');
+            console.log('Starting job application:', jobId);
+            // In real implementation: window.location.href = `application_compiler.html?job=${jobId}`;
+        }
+
+        function saveToJobWorklist(jobId) {
+            showNotification(`${getJobTitle(jobId)} saved to worklist!`, 'success');
+            console.log('Saved job to worklist:', jobId);
+        }
+
+        // Bulk action handlers
+        function bulkAddToHubSpot(type) {
+            if (type === 'company' && selectedCompanies.size > 0) {
+                showNotification(`${selectedCompanies.size} companies added to HubSpot!`, 'success');
+                console.log('Bulk added to HubSpot:', Array.from(selectedCompanies));
+                clearCompanySelection();
+            }
+        }
+
+        function bulkAddToWorklist(type) {
+            if (type === 'company' && selectedCompanies.size > 0) {
+                showNotification(`${selectedCompanies.size} companies added to research worklist!`, 'success');
+                console.log('Bulk added to company worklist:', Array.from(selectedCompanies));
+                clearCompanySelection();
+            }
+        }
+
+        function bulkSaveToWorklist(type) {
+            if (type === 'job' && selectedJobs.size > 0) {
+                showNotification(`${selectedJobs.size} jobs saved to worklist!`, 'success');
+                console.log('Bulk saved to job worklist:', Array.from(selectedJobs));
+                clearJobSelection();
+            }
+        }
+
+        // Clear selections
+        function clearCompanySelection() {
+            selectedCompanies.forEach(companyId => {
+                const checkbox = document.querySelector(`[data-id="${companyId}"] .result-checkbox`);
+                const resultRow = document.querySelector(`[data-id="${companyId}"]`);
+                if (checkbox) checkbox.checked = false;
+                if (resultRow) resultRow.classList.remove('selected');
+            });
+            selectedCompanies.clear();
+            updateCompanyBulkActions();
+        }
+
+        function clearJobSelection() {
+            selectedJobs.forEach(jobId => {
+                const checkbox = document.querySelector(`[data-id="${jobId}"] .result-checkbox`);
+                const resultRow = document.querySelector(`[data-id="${jobId}"]`);
+                if (checkbox) checkbox.checked = false;
+                if (resultRow) resultRow.classList.remove('selected');
+            });
+            selectedJobs.clear();
+            updateJobBulkActions();
+        }
+
+        // Helper functions to get names/titles for notifications
+        function getCompanyName(companyId) {
+            const element = document.querySelector(`[data-id="${companyId}"] .company-name`);
+            return element ? element.textContent : 'Company';
+        }
+
+        function getJobTitle(jobId) {
+            const element = document.querySelector(`[data-id="${jobId}"] .job-title`);
+            return element ? element.textContent : 'Job';
+        }
+
+        // Clear search results and return to default view
+        function clearSearchResults() {
+            document.getElementById('companySearchResults').style.display = 'none';
+            document.getElementById('jobSearchResults').style.display = 'none';
+            document.getElementById('defaultCompanyContent').style.display = 'block';
+            document.getElementById('defaultJobContent').style.display = 'block';
+            document.getElementById('searchInput').value = '';
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Prompt functionality
+        function usePrompt(promptText) {
+            document.getElementById('searchInput').value = promptText;
+            performAISearch();
+        }
+
+        // Handle Enter key in search input
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performAISearch();
+                    }
+                });
+            }
+        });
+
+        // Add CSS animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Company and Job Actions
+        function viewCompany(companyId) {
+            alert(`Opening detailed view for company: ${companyId}`);
+        }
+        
+        function viewJob(jobId) {
+            alert(`Opening job details for: ${jobId}`);
+            // In real implementation: window.location.href = `job_discovery_company_research.html?job=${jobId}`;
+        }
+        
+        // Original navigation functions
+        function goToCompanyDiscovery(sector = '') {
+            if (sector) {
+                window.location.href = `company_discovery.html?sector=${sector}`;
+            } else {
+                window.location.href = 'company_discovery.html';
+            }
+        }
+
+        function goToJobDiscovery(role = '') {
+            if (role) {
+                window.location.href = `job_discovery_company_research.html?role=${role}`;
+            } else {
+                window.location.href = 'job_discovery_company_research.html';
+            }
+        }
+
+        // Enhanced search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('aiSearch');
+            
+            // Enter key search
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performAISearch();
+                }
+            });
+            
+            // Click outside to hide results
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    hideSearchResults();
+                }
+            });
+            
+            // Prevent results from closing when clicking inside
+            document.getElementById('searchResults').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Filter tag interactions
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const group = this.closest('.filter-group');
+                if (group) {
+                    group.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Demo: Show search results on page load
+        setTimeout(() => {
+            document.getElementById('searchResults').classList.add('show');
+        }, 1000);
+    </script>
+</body>
+</html>

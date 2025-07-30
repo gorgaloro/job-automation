@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Discovery & Company Research - AI Job Search Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 0;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .enrichment-modal {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90vw;
+            height: 95vh;
+            overflow: hidden;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f7fafc;
+            color: #4a5568;
+        }
+
+        .filters-sidebar {
+            width: 280px;
+            background: #f8faff;
+            border-radius: 15px 0 0 15px;
+            padding: 25px;
+            box-shadow: inset -3px 0 8px rgba(0, 0, 0, 0.03);
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .job-listings-panel {
+            flex: 1;
+            background: white;
+            border-radius: 0 15px 15px 0;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            background: white;
+            color: #4a5568;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-btn:hover {
+            background: #f7fafc;
+            border-color: #a0aec0;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-count {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .job-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-right: -10px;
+            padding-right: 10px;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .job-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .job-company {
+            font-size: 0.95rem;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .job-snippet {
+            font-size: 0.9rem;
+            color: #4a5568;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .job-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .job-tag {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .job-source {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .job-posted {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+
+        .fit-score-badge {
+            position: absolute;
+            top: 50px;
+            right: 15px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+        }
+
+        .fit-score-badge.excellent {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .fit-score-badge.very-good {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .fit-score-badge.good {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .fit-score-badge.fair {
+            background: linear-gradient(135deg, #ecc94b, #d69e2e);
+        }
+
+        .enrichment-loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .job-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .job-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .job-item.selected {
+            border-color: #667eea;
+            background: #f8faff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: #f7fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .company-info h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .company-info p {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .fit-score {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .fit-score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .fit-score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .enrichment-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-content {
+            background: #f8faff;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #4a5568;
+        }
+
+        .key-requirements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .requirement {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #edf2f7;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #a0aec0;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        .network-info {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .network-connections {
+            font-size: 0.85rem;
+            color: #c53030;
+            font-weight: 500;
+        }
+
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a:hover {
+            color: white;
+        }
+
+        .breadcrumb span {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        /* 3-Column Modal Layout */
+        .modal-three-column {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .left-column {
+            flex: 0 0 25%;
+            background: #f8faff;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: calc(95vh - 200px);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .center-column {
+            flex: 0 0 50%;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            max-height: calc(95vh - 200px);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .right-column {
+            flex: 0 0 25%;
+            background: #f8faff;
+            border-radius: 8px;
+            padding: 15px 0px 15px 15px; /* No right padding */
+            overflow-y: scroll;
+            max-height: calc(95vh - 200px);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            box-sizing: border-box;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #888 #f1f1f1; /* Firefox */
+        }
+
+        /* Webkit scrollbar styling for right column */
+        .right-column::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .right-column::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .right-column::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .right-column::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Fix text overflow in all columns */
+        .left-column *, .center-column *, .right-column * {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .left-column pre, .center-column pre, .right-column pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .left-column table, .center-column table, .right-column table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .left-column td, .center-column td, .right-column td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Network & Connections Styles */
+        .network-section {
+            margin-bottom: 20px;
+        }
+
+        .network-section h5 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .connection-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .connection-info {
+            flex: 1;
+        }
+
+        .connection-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #2d3748;
+            margin-bottom: 2px;
+        }
+
+        .connection-role {
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-bottom: 2px;
+        }
+
+        .connection-type {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-bottom: 2px;
+        }
+
+        .connection-status {
+            font-size: 0.7rem;
+            color: #a0aec0;
+        }
+
+        /* Job Header Styles */
+        .job-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .job-header .company-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .job-title-info h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .company-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 3px;
+        }
+
+        .job-location, .job-posted {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 2px;
+        }
+
+        /* Job Section Styles */
+        .job-section {
+            margin-bottom: 20px;
+        }
+
+        .job-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+
+        .job-section p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .job-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .job-section li {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        /* Right Column Styles */
+        .fit-score-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .fit-score-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            color: white;
+        }
+
+        .score-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .score-label {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        .analysis-section, .company-section, .culture-section, .history-section {
+            margin-bottom: 20px;
+        }
+
+        .analysis-section h4, .company-section h4, .culture-section h4, .history-section h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+
+        .key-matches, .growth-areas {
+            margin-bottom: 10px;
+        }
+
+        .key-matches h5, .growth-areas h5 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .key-matches ul, .growth-areas ul {
+            margin: 0;
+            padding-left: 15px;
+        }
+
+        .key-matches li, .growth-areas li {
+            font-size: 0.75rem;
+            line-height: 1.3;
+            margin-bottom: 3px;
+        }
+
+        .company-details {
+            font-size: 0.8rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .detail-row .label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .detail-row .value {
+            color: #2d3748;
+        }
+
+        .culture-rating {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-bottom: 10px;
+        }
+
+        .culture-rating .rating {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .culture-highlights {
+            font-size: 0.75rem;
+        }
+
+        .culture-pro, .culture-con {
+            margin-bottom: 3px;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .history-item .job-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .history-item .status {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 3px;
+            display: inline-block;
+        }
+
+        .status.interviewing {
+            background: #48bb78;
+            color: white;
+        }
+
+        .insight-message {
+            font-size: 0.7rem;
+            color: #718096;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        /* Follow-up Button Styles */
+        .follow-up-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .follow-up-btn:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .follow-up-btn:active {
+            transform: translateY(0);
+        }
+
+        .follow-up-btn span {
+            font-size: 0.9rem;
+        }
+
+        /* Modal Banner Styles */
+        .modal-banner {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 25px;
+            margin: -30px -30px 25px -30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .company-logo-large {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .job-info {
+            flex: 1;
+        }
+
+        .job-info .job-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: white;
+        }
+
+        .job-info .company-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .job-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .detail-item {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            backdrop-filter: blur(5px);
+        }
+
+        .banner-right {
+            flex-shrink: 0;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .banner-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .banner-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .banner-btn.btn-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .banner-btn.btn-primary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .banner-btn span {
+            font-size: 1rem;
+        }
+
+        /* Adjust 3-column layout spacing */
+        .modal-three-column {
+            margin-top: 0;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .add-job-group {
+            margin-left: auto;
+        }
+
+        .add-job-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-job-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-icon {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Add Job URL Modal Styles */
+        .add-job-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .add-job-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .add-job-header h2 {
+            color: #2d3748;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .add-job-header p {
+            color: #718096;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .add-job-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .url-input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .url-help {
+            font-size: 12px;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .cancel-btn {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .ingest-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .ingest-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .ingest-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Horizontal Filters Section */
+        .horizontal-filters {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 20px;
+            background: #f8faff;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 0;
+        }
+
+        .horizontal-filters .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .horizontal-filters .filter-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            white-space: nowrap;
+        }
+
+        .horizontal-filters .filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            color: #2d3748;
+            min-width: 120px;
+        }
+
+        .horizontal-filters .add-job-group {
+            margin-left: auto;
+        }
+
+        .horizontal-filters .add-job-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .horizontal-filters .add-job-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .horizontal-filters .add-icon {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Unified Navigation Styles */
+        .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="dashboard_home.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Company Discovery</a>
+                <a href="job_discovery_company_research.html" class="nav-link active">Job Discovery</a>
+                <a href="application_dashboard.html" class="nav-link">Applications</a>
+                <a href="#" class="nav-link">Interviews</a>
+                <a href="#" class="nav-link">Networking</a>
+                <a href="#" class="nav-link">Events</a>
+                <a href="#" class="nav-link">News</a>
+                <a href="../demos/admin_settings.html" class="nav-link">Settings</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb">
+            <a href="dashboard_home.html">Home</a>
+            <span>›</span>
+            <a href="#" style="color: white;">Job Discovery & Company Research</a>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Job Discovery & Company Research</h1>
+            <div class="header-stats">
+                <div class="stat">
+                    <span>📋</span>
+                    <span>New Jobs: <span class="stat-value">23</span></span>
+                </div>
+                <div class="stat">
+                    <span>⏰</span>
+                    <span>In Worklist: <span class="stat-value">8</span></span>
+                </div>
+                <div class="stat">
+                    <span>🎯</span>
+                    <span>Applied Today: <span class="stat-value">2</span></span>
+                </div>
+                <div class="stat">
+                    <span>🔄</span>
+                    <span>Last Sync: <span class="stat-value">5 min ago</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Filters Sidebar -->
+            <div class="filters-sidebar">
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: #2d3748; margin-bottom: 20px;">Filters</h3>
+                
+                <!-- Source Filters -->
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>📊</span>
+                        Job Sources
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active">
+                            <span>All Jobs</span>
+                            <span class="filter-count">23</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>Indeed</span>
+                            <span class="filter-count">12</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>LinkedIn</span>
+                            <span class="filter-count">8</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>GitHub</span>
+                            <span class="filter-count">3</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Fit Score Filters -->
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>🎯</span>
+                        Fit Score
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active">
+                            <span>All Scores</span>
+                            <span class="filter-count">23</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>95%+</span>
+                            <span class="filter-count">2</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>90%+</span>
+                            <span class="filter-count">5</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>80%+</span>
+                            <span class="filter-count">12</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>70%+</span>
+                            <span class="filter-count">18</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Company Size/Stage Filters -->
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>🏢</span>
+                        Company Stage
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active">
+                            <span>All Companies</span>
+                            <span class="filter-count">23</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>🚀 Startups</span>
+                            <span class="filter-count">6</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>📈 Scale-ups</span>
+                            <span class="filter-count">8</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>🦄 Unicorns</span>
+                            <span class="filter-count">4</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>🏢 Public/Enterprise</span>
+                            <span class="filter-count">5</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Date Filters -->
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>📅</span>
+                        Posted Date
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active">
+                            <span>All Dates</span>
+                            <span class="filter-count">23</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>Last 3 Days</span>
+                            <span class="filter-count">8</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>Last Week</span>
+                            <span class="filter-count">15</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>Last 2 Weeks</span>
+                            <span class="filter-count">20</span>
+                        </button>
+                        <button class="filter-btn">
+                            <span>Last Month</span>
+                            <span class="filter-count">23</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Job Listings Panel -->
+            <div class="job-listings-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Job Listings</h2>
+                </div>
+
+                <!-- Horizontal Filters Section -->
+                <div class="horizontal-filters">
+                    <div class="filter-group">
+                        <label>Date Posted:</label>
+                        <select id="dateFilter">
+                            <option value="all">All Time</option>
+                            <option value="3days">Last 3 Days</option>
+                            <option value="week">Last Week</option>
+                            <option value="2weeks">Last 2 Weeks</option>
+                            <option value="month">Last Month</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Fit Score:</label>
+                        <select id="fitScoreFilter">
+                            <option value="all">All Scores</option>
+                            <option value="90+">90%+ (Excellent)</option>
+                            <option value="80+">80%+ (Very Good)</option>
+                            <option value="70+">70%+ (Good)</option>
+                            <option value="60+">60%+ (Fair)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Company Stage:</label>
+                        <select id="companyStageFilter">
+                            <option value="all">All Stages</option>
+                            <option value="startup">Startup (1-50)</option>
+                            <option value="scaleup">Scale-up (51-500)</option>
+                            <option value="unicorn">Unicorn (500+)</option>
+                            <option value="public">Public/Enterprise</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group add-job-group">
+                        <button id="addJobBtn" class="add-job-btn">
+                            <span class="add-icon">+</span>
+                            Add Job URL
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Job List -->
+                <div class="job-list">
+                    <!-- Job Item 1 - Selected -->
+                    <div class="job-item selected" onclick="selectJob(1)">
+                        <div class="job-source">Indeed</div>
+                        <div class="fit-score-badge excellent">92%</div>
+                        <div class="job-posted">Jan 28, 2025 (2 hours ago)</div>
+                        <div class="job-header">
+                            <div>
+                                <div class="job-title">Senior AI Platform Manager</div>
+                                <div class="job-company">Coactive AI</div>
+                            </div>
+                        </div>
+                        <div class="job-meta">
+                            <span>📍 San Francisco, CA</span>
+                            <span>💰 $180k - $220k</span>
+                            <span>🚀 Series B Startup</span>
+                            <span>🏠 Hybrid</span>
+                        </div>
+                        <div class="job-snippet">
+                            Lead the development and scaling of our AI platform infrastructure. Work with cross-functional teams to deliver enterprise-grade AI solutions...
+                        </div>
+                        <div class="job-tags">
+                            <span class="job-tag">AI/ML</span>
+                            <span class="job-tag">Platform Engineering</span>
+                            <span class="job-tag">Python</span>
+                            <span class="job-tag">Kubernetes</span>
+                        </div>
+                    </div>
+
+                    <!-- Job Item 2 -->
+                    <div class="job-item" onclick="selectJob(2)">
+                        <div class="job-source">LinkedIn</div>
+                        <div class="fit-score-badge excellent">96%</div>
+                        <div class="job-posted">Jan 28, 2025 (4 hours ago)</div>
+                        <div class="job-header">
+                            <div>
+                                <div class="job-title">Healthcare IT Program Manager</div>
+                                <div class="job-company">Epic Systems</div>
+                            </div>
+                        </div>
+                        <div class="job-meta">
+                            <span>📍 Madison, WI</span>
+                            <span>💰 $140k - $170k</span>
+                            <span>🏢 Public Enterprise</span>
+                            <span>🏠 Remote</span>
+                        </div>
+                        <div class="job-snippet">
+                            Drive implementation of Epic EMR systems across healthcare organizations. Lead technical teams and manage complex healthcare IT projects...
+                        </div>
+                        <div class="job-tags">
+                            <span class="job-tag">Epic EMR</span>
+                            <span class="job-tag">Healthcare IT</span>
+                            <span class="job-tag">Project Management</span>
+                            <span class="job-tag">PMP</span>
+                        </div>
+                    </div>
+
+                    <!-- Job Item 3 -->
+                    <div class="job-item" onclick="selectJob(3)">
+                        <div class="job-source">GitHub</div>
+                        <div class="fit-score-badge very-good">88%</div>
+                        <div class="job-posted">Jan 27, 2025 (1 day ago)</div>
+                        <div class="job-header">
+                            <div>
+                                <div class="job-title">Senior Product Manager - AI Tools</div>
+                                <div class="job-company">Anthropic</div>
+                            </div>
+                        </div>
+                        <div class="job-meta">
+                            <span>📍 San Francisco, CA</span>
+                            <span>💰 $200k - $250k</span>
+                            <span>📈 Series C Scale-up</span>
+                            <span>🏢 In-Person</span>
+                        </div>
+                        <div class="job-snippet">
+                            Shape the future of AI assistant tools and developer experiences. Work directly with research teams to bring cutting-edge AI capabilities to market...
+                        </div>
+                        <div class="job-tags">
+                            <span class="job-tag">AI/ML</span>
+                            <span class="job-tag">Product Management</span>
+                            <span class="job-tag">Developer Tools</span>
+                            <span class="job-tag">LLMs</span>
+                        </div>
+                    </div>
+
+                    <!-- Job Item 4 -->
+                    <div class="job-item" onclick="selectJob(4)">
+                        <div class="job-source">Indeed</div>
+                        <div class="fit-score-badge good">82%</div>
+                        <div class="job-posted">1 day ago</div>
+                        <div class="job-header">
+                            <div>
+                                <div class="job-title">Director of Engineering - AI Platform</div>
+                                <div class="job-company">Scale AI</div>
+                            </div>
+                        </div>
+                        <div class="job-meta">
+                            <span>📍 San Francisco, CA</span>
+                            <span>💰 $250k - $300k</span>
+                            <span>🦄 Unicorn</span>
+                            <span>🏢 In-Person</span>
+                        </div>
+                        <div class="job-snippet">
+                            Lead engineering teams building the next generation of AI training and evaluation platforms. Scale our infrastructure to handle enterprise workloads...
+                        </div>
+                        <div class="job-tags">
+                            <span class="job-tag">Engineering Leadership</span>
+                            <span class="job-tag">AI Infrastructure</span>
+                            <span class="job-tag">Distributed Systems</span>
+                            <span class="job-tag">Team Management</span>
+                        </div>
+                    </div>
+
+                    <!-- Job Item 5 -->
+                    <div class="job-item" onclick="selectJob(5)">
+                        <div class="job-source">LinkedIn</div>
+                        <div class="fit-score-badge very-good">91%</div>
+                        <div class="job-posted">1 day ago</div>
+                        <div class="job-header">
+                            <div>
+                                <div class="job-title">Technical Program Manager</div>
+                                <div class="job-company">OpenAI</div>
+                            </div>
+                        </div>
+                        <div class="job-meta">
+                            <span>📍 San Francisco, CA</span>
+                            <span>💰 $170k - $200k</span>
+                            <span>🏢 Private Enterprise</span>
+                            <span>🏠 Hybrid</span>
+                        </div>
+                        <div class="job-snippet">
+                            Drive cross-functional initiatives to accelerate AI research and product development. Coordinate between research, engineering, and product teams...
+                        </div>
+                        <div class="job-tags">
+                            <span class="job-tag">Technical Program Management</span>
+                            <span class="job-tag">AI Research</span>
+                            <span class="job-tag">Cross-functional</span>
+                            <span class="job-tag">Product Development</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Modal Overlay -->
+        <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+            <!-- Add Job URL Modal -->
+            <div id="addJobModal" class="modal-overlay" style="display: none;">
+                <div class="add-job-modal">
+                    <div class="modal-close" onclick="closeAddJobModal()">&times;</div>
+                    <div class="add-job-header">
+                        <h2>Add Job from URL</h2>
+                        <p>Paste a job posting URL to automatically extract and analyze the position</p>
+                        <h3>Coactive AI</h3>
+                        <p>AI-powered visual search and analytics platform</p>
+                    </div>
+                </div>
+
+                <!-- Fit Score -->
+                <div class="fit-score">
+                    <div class="fit-score-value">92%</div>
+                    <div class="fit-score-label">Excellent Fit Score</div>
+                </div>
+
+                <!-- Job Analysis -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>🎯</span>
+                        Job Analysis
+                    </h4>
+                    <div class="section-content">
+                        <strong>Role Summary:</strong> Senior leadership position managing AI platform infrastructure and cross-functional teams. Requires 8+ years experience in AI/ML platforms with strong technical and management background.
+                        <br><br>
+                        <strong>Key Match Points:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>AI/ML platform experience (Epic AI, personal projects)</li>
+                            <li>Cross-functional team leadership (healthcare implementations)</li>
+                            <li>Python and platform engineering background</li>
+                            <li>Enterprise-scale system management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Company Intelligence -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>🏢</span>
+                        Company Intelligence
+                    </h4>
+                    <div class="section-content">
+                        <strong>Founded:</strong> 2021 | <strong>Size:</strong> 50-100 employees<br>
+                        <strong>Funding:</strong> $15M Series B (2023)<br>
+                        <strong>Industry:</strong> Computer Vision, AI/ML<br>
+                        <strong>Tech Stack:</strong> Python, PyTorch, Kubernetes, AWS<br><br>
+                        <strong>Recent News:</strong> Raised Series B funding, expanding enterprise customer base, hiring aggressively in AI platform roles.
+                    </div>
+                </div>
+
+                <!-- Key Requirements -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>📋</span>
+                        Key Requirements
+                    </h4>
+                    <div class="key-requirements">
+                        <span class="requirement">8+ years experience</span>
+                        <span class="requirement">AI/ML platforms</span>
+                        <span class="requirement">Python</span>
+                        <span class="requirement">Kubernetes</span>
+                        <span class="requirement">Team leadership</span>
+                        <span class="requirement">Enterprise scale</span>
+                    </div>
+                </div>
+
+                <!-- Company Culture (Glassdoor) -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>🏢</span>
+                        Company Culture (Glassdoor)
+                    </h4>
+                    <div class="section-content">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <div><strong>Overall Rating:</strong> 4.2/5.0</div>
+                            <div><strong>Work-Life Balance:</strong> 4.1/5.0</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <strong style="color: #48bb78;">✅ Pros:</strong>
+                            <ul style="margin: 5px 0; padding-left: 20px; font-size: 0.85rem;">
+                                <li>Cutting-edge AI technology and research opportunities</li>
+                                <li>Smart, collaborative team with strong technical expertise</li>
+                                <li>Flexible work arrangements and good work-life balance</li>
+                                <li>Competitive compensation with meaningful equity</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <strong style="color: #e53e3e;">❌ Cons:</strong>
+                            <ul style="margin: 5px 0; padding-left: 20px; font-size: 0.85rem;">
+                                <li>Fast-paced startup environment can be stressful</li>
+                                <li>Limited formal career development programs</li>
+                                <li>Some uncertainty around long-term product direction</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <strong>Culture Summary:</strong> Innovation-driven startup with strong technical focus. Emphasizes collaboration, rapid iteration, and pushing AI boundaries. Team values autonomy and technical excellence.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Arrangement -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>🏠</span>
+                        Work Arrangement
+                    </h4>
+                    <div class="section-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div><strong>Policy:</strong> Hybrid (3 days in office)</div>
+                            <div style="background: #667eea; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">HYBRID</div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #4a5568;">
+                            <strong>Office Location:</strong> San Francisco, CA (SOMA District)<br>
+                            <strong>Remote Days:</strong> Monday & Friday typically remote<br>
+                            <strong>Flexibility:</strong> Can adjust based on project needs and team meetings
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Application History -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>📋</span>
+                        Application History at Coactive AI
+                    </h4>
+                    <div class="section-content">
+                        <div style="background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <div><strong>AI Research Engineer</strong></div>
+                                <div style="background: #48bb78; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">INTERVIEWING</div>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #4a5568;">
+                                Applied: Jan 15, 2025 • Phone Screen: Jan 22 • Technical Interview: Feb 2 (scheduled)
+                            </div>
+                        </div>
+                        
+                        <div style="background: #fffaf0; border: 1px solid #fbd38d; border-radius: 8px; padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <div><strong>Product Manager - AI Platform</strong></div>
+                                <div style="background: #ed8936; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">APPLIED</div>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #4a5568;">
+                                Applied: Dec 18, 2024 • Status: Under Review • Last Update: Jan 10, 2025
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 10px; font-style: italic;">
+                            💡 You have strong momentum at this company - leverage your existing interview process!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Connections -->
+                <div class="enrichment-section">
+                    <h4 class="section-title">
+                        <span>🤝</span>
+                        Network Analysis
+                    </h4>
+                    <div class="network-info">
+                        <div class="network-connections">
+                            2 LinkedIn connections at Coactive AI
+                        </div>
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px;">
+                            • Sarah Chen (Senior Engineer) - 2nd degree
+                            <br>
+                            • Mike Rodriguez (Product Manager) - 3rd degree via Stanford
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn btn-success" onclick="compileApplication()">
+                        <span>📋</span>
+                        Compile Application
+                    </button>
+                    <button class="action-btn btn-primary" onclick="addToWorklist()">
+                        <span>📝</span>
+                        Add to Worklist
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="addToHubSpot()">
+                        <span>🏢</span>
+                        Add Company to HubSpot
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="exploreNetwork()">
+                        <span>🤝</span>
+                        Explore Network
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Job URL Modal -->
+    <div id="addJobModal" class="modal-overlay" style="display: none;">
+        <div class="add-job-modal">
+            <div class="modal-close" onclick="closeAddJobModal()">&times;</div>
+            <div class="add-job-header">
+                <h2>Add Job from URL</h2>
+                <p>Paste a job posting URL to automatically extract and analyze the position</p>
+            </div>
+            <div class="add-job-form">
+                <div class="form-group">
+                    <label for="jobUrl">Job Posting URL:</label>
+                    <input type="url" id="jobUrl" placeholder="https://company.com/careers/job-posting" class="url-input">
+                    <div class="url-help">Supported: LinkedIn, Indeed, Greenhouse, Lever, company career pages</div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="closeAddJobModal()" class="cancel-btn">Cancel</button>
+                    <button onclick="ingestJobUrl()" class="ingest-btn">
+                        <span class="loading-spinner" style="display: none;">⟳</span>
+                        <span class="btn-text">Analyze Job</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return; // Only close if clicking overlay
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+                closeAddJobModal();
+            }
+        });
+
+        // Add Job URL Modal Functions
+        function openAddJobModal() {
+            document.getElementById('addJobModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            // Focus on the URL input
+            setTimeout(() => {
+                document.getElementById('jobUrl').focus();
+            }, 100);
+        }
+
+        function closeAddJobModal() {
+            document.getElementById('addJobModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Clear the form
+            document.getElementById('jobUrl').value = '';
+            // Reset button state
+            const btn = document.querySelector('.ingest-btn');
+            const spinner = btn.querySelector('.loading-spinner');
+            const text = btn.querySelector('.btn-text');
+            spinner.style.display = 'none';
+            text.textContent = 'Analyze Job';
+            btn.disabled = false;
+        }
+
+        // Add event listener to the Add Job button
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('addJobBtn').addEventListener('click', openAddJobModal);
+        });
+
+        // Job URL Ingestion Function
+        async function ingestJobUrl() {
+            const urlInput = document.getElementById('jobUrl');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Please enter a job posting URL');
+                return;
+            }
+            
+            if (!isValidUrl(url)) {
+                alert('Please enter a valid URL');
+                return;
+            }
+            
+            // Show loading state
+            const btn = document.querySelector('.ingest-btn');
+            const spinner = btn.querySelector('.loading-spinner');
+            const text = btn.querySelector('.btn-text');
+            
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            text.textContent = 'Analyzing...';
+            
+            try {
+                // Simulate API call to job parser/enrichment service
+                await simulateJobIngestion(url);
+                
+                // Close the add job modal
+                closeAddJobModal();
+                
+                // Show success message
+                showSuccessMessage('Job successfully added and analyzed!');
+                
+                // Refresh the job list (in real implementation, this would fetch from backend)
+                refreshJobList();
+                
+            } catch (error) {
+                console.error('Error ingesting job:', error);
+                alert('Error analyzing job posting. Please try again.');
+                
+                // Reset button state
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                text.textContent = 'Analyze Job';
+            }
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        async function simulateJobIngestion(url) {
+            // Simulate API processing time
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // In real implementation, this would:
+            // 1. Send URL to job parser service
+            // 2. Extract job details, company info
+            // 3. Run through enrichment pipeline
+            // 4. Calculate fit score
+            // 5. Store in database
+            // 6. Return structured job data
+            
+            console.log('Job ingested from URL:', url);
+        }
+
+        function showSuccessMessage(message) {
+            // Create and show a temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #48bb78, #38a169);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+                z-index: 10000;
+                font-weight: 500;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        function refreshJobList() {
+            // In real implementation, this would refresh the job listings
+            // For demo, we'll just add a visual indicator that a new job was added
+            console.log('Job list refreshed - new job added to tracking');
+        }
+
+        // Simulate job selection and enrichment
+        function selectJob(jobId) {
+            // Remove selected class from all jobs
+            document.querySelectorAll('.job-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked job
+            event.currentTarget.classList.add('selected');
+            
+            // Show modal with loading state
+            openModal();
+            showEnrichmentLoading();
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                loadJobEnrichment(jobId);
+            }, 1500);
+        }
+
+        function showEnrichmentLoading() {
+            const content = document.getElementById('enrichmentContent');
+            content.innerHTML = `
+                <div class="enrichment-loading">
+                    <div class="spinner"></div>
+                    <h3>Enriching Job Data...</h3>
+                    <p>Analyzing company information, calculating fit score, and checking network connections</p>
+                </div>
+            `;
+        }
+
+        function loadJobEnrichment(jobId) {
+            // This would normally make API calls to your enrichment service
+            // For demo, we'll show the enriched content directly
+            const content = document.getElementById('enrichmentContent');
+            
+            // Show the enriched content in new 3-column layout with banner
+            content.innerHTML = `
+                <!-- Top Banner spanning all columns -->
+                <div class="modal-banner">
+                    <div class="banner-left">
+                        <div class="company-logo-large">CA</div>
+                        <div class="job-info">
+                            <h2 class="job-title">Senior Product Designer</h2>
+                            <h3 class="company-name">Coactive AI</h3>
+                            <div class="job-details">
+                                <span class="detail-item">📍 San Jose, CA • Hybrid</span>
+                                <span class="detail-item">💰 $160,000 - $200,000</span>
+                                <span class="detail-item">📅 Posted 2 days ago</span>
+                                <span class="detail-item">🔥 Series A Startup</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="banner-right">
+                        <div class="banner-actions">
+                            <button class="banner-btn btn-primary" onclick="compileApplication()">
+                                <span>📋</span>
+                                Compile Application
+                            </button>
+                            <button class="banner-btn btn-secondary" onclick="addToWorklist()">
+                                <span>📝</span>
+                                Add to Worklist
+                            </button>
+                            <button class="banner-btn btn-secondary" onclick="addToHubSpot()">
+                                <span>🏢</span>
+                                Add to HubSpot
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-Column Layout -->
+                <div class="modal-three-column">
+                    <!-- Left Column: Network & Connections -->
+                    <div class="left-column">
+                        <h4>🤝 Network & Connections</h4>
+                        
+                        <!-- HubSpot Connections -->
+                        <div class="network-section">
+                            <h5>HubSpot Contacts</h5>
+                            <div class="connection-item">
+                                <div class="connection-avatar">MJ</div>
+                                <div class="connection-info">
+                                    <div class="connection-name">Mike Johnson</div>
+                                    <div class="connection-role">Senior Engineer</div>
+                                    <div class="connection-type">HubSpot Contact</div>
+                                    <div class="connection-status">Last Contact: 2 weeks ago</div>
+                                </div>
+                                <button class="follow-up-btn" onclick="createFollowUpTask('Mike Johnson', 'Senior Engineer', 'HubSpot')" title="Create follow-up task about this job">
+                                    <span>📞</span>
+                                </button>
+                            </div>
+                            <div class="connection-item">
+                                <div class="connection-avatar">AL</div>
+                                <div class="connection-info">
+                                    <div class="connection-name">Amanda Liu</div>
+                                    <div class="connection-role">VP of Product</div>
+                                    <div class="connection-type">HubSpot Contact</div>
+                                    <div class="connection-status">Last Contact: 1 month ago</div>
+                                </div>
+                                <button class="follow-up-btn" onclick="createFollowUpTask('Amanda Liu', 'VP of Product', 'HubSpot')" title="Create follow-up task about this job">
+                                    <span>📞</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Alumni Connections -->
+                        <div class="network-section">
+                            <h5>Alumni Network</h5>
+                            <div class="connection-item">
+                                <div class="connection-avatar">SL</div>
+                                <div class="connection-info">
+                                    <div class="connection-name">Sarah Lee</div>
+                                    <div class="connection-role">Product Manager</div>
+                                    <div class="connection-type">USC Alumni '15</div>
+                                    <div class="connection-status">LinkedIn Connection</div>
+                                </div>
+                                <button class="follow-up-btn" onclick="createFollowUpTask('Sarah Lee', 'Product Manager', 'USC Alumni')" title="Create follow-up task about this job">
+                                    <span>📞</span>
+                                </button>
+                            </div>
+                            <div class="connection-item">
+                                <div class="connection-avatar">DK</div>
+                                <div class="connection-info">
+                                    <div class="connection-name">David Kim</div>
+                                    <div class="connection-role">Design Lead</div>
+                                    <div class="connection-type">CSUF Alumni '12</div>
+                                    <div class="connection-status">2nd Degree Connection</div>
+                                </div>
+                                <button class="follow-up-btn" onclick="createFollowUpTask('David Kim', 'Design Lead', 'CSUF Alumni')" title="Create follow-up task about this job">
+                                    <span>📞</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Previous Company Connections -->
+                        <div class="network-section">
+                            <h5>Previous Colleagues</h5>
+                            <div class="connection-item">
+                                <div class="connection-avatar">RT</div>
+                                <div class="connection-info">
+                                    <div class="connection-name">Rachel Torres</div>
+                                    <div class="connection-role">Senior Designer</div>
+                                    <div class="connection-type">Ex-Ford Colleague</div>
+                                    <div class="connection-status">LinkedIn Connection</div>
+                                </div>
+                                <button class="follow-up-btn" onclick="createFollowUpTask('Rachel Torres', 'Senior Designer', 'Ex-Ford')" title="Create follow-up task about this job">
+                                    <span>📞</span>
+                                </button>
+                            </div>
+                            <div class="connection-item">
+                                <div class="connection-avatar">JW</div>
+                                <div class="connection-info">
+                                    <div class="connection-name">James Wilson</div>
+                                    <div class="connection-role">Engineering Manager</div>
+                                    <div class="connection-type">Ex-Epic Colleague</div>
+                                    <div class="connection-status">Strong Connection</div>
+                                </div>
+                                <button class="follow-up-btn" onclick="createFollowUpTask('James Wilson', 'Engineering Manager', 'Ex-Epic')" title="Create follow-up task about this job">
+                                    <span>📞</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Center Column: Structured Job Ad (2/3 width) -->
+                    <div class="center-column">
+                        <!-- Company Header -->
+                        <div class="job-header">
+                            <div class="company-logo">CA</div>
+                            <div class="job-title-info">
+                                <h3>Senior Product Designer</h3>
+                                <p class="company-name">Coactive AI</p>
+                                <p class="job-location">San Jose, CA • Hybrid</p>
+                                <p class="job-posted">Posted 2 days ago</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Job Summary -->
+                        <div class="job-section">
+                            <h4>Job Summary</h4>
+                            <p>We're looking for a Senior Product Designer to join our growing team and help shape the future of AI-powered visual intelligence. You'll work closely with our product, engineering, and research teams to design intuitive user experiences for complex AI/ML workflows.</p>
+                        </div>
+                        
+                        <!-- Key Responsibilities -->
+                        <div class="job-section">
+                            <h4>Key Responsibilities</h4>
+                            <ul>
+                                <li>Lead end-to-end design process from research to implementation</li>
+                                <li>Design and maintain our design system and component library</li>
+                                <li>Collaborate with ML engineers to create intuitive AI model interfaces</li>
+                                <li>Conduct user research and usability testing</li>
+                                <li>Mentor junior designers and establish design best practices</li>
+                                <li>Work with product managers to define feature requirements</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Required Qualifications -->
+                        <div class="job-section">
+                            <h4>Required Qualifications</h4>
+                            <ul>
+                                <li>8+ years of product design experience</li>
+                                <li>Strong portfolio demonstrating complex B2B product design</li>
+                                <li>Experience with design systems and component libraries</li>
+                                <li>Proficiency in Figma, Sketch, and prototyping tools</li>
+                                <li>Experience working with engineering teams</li>
+                                <li>Bachelor's degree in Design, HCI, or related field</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Preferred Qualifications -->
+                        <div class="job-section">
+                            <h4>Preferred Qualifications</h4>
+                            <ul>
+                                <li>Experience designing for AI/ML or data-heavy products</li>
+                                <li>Background in computer vision or visual AI applications</li>
+                                <li>Experience in startup or high-growth environments</li>
+                                <li>Knowledge of front-end development (HTML/CSS/JS)</li>
+                                <li>Experience with user research methodologies</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Compensation & Benefits -->
+                        <div class="job-section">
+                            <h4>Compensation & Benefits</h4>
+                            <ul>
+                                <li>Competitive salary: $160,000 - $200,000</li>
+                                <li>Equity package with high growth potential</li>
+                                <li>Comprehensive health, dental, and vision insurance</li>
+                                <li>Flexible PTO and parental leave</li>
+                                <li>$3,000 annual learning & development budget</li>
+                                <li>Top-tier equipment and home office setup</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Job Analysis & Company Intelligence -->
+                    <div class="right-column">
+                        <!-- Fit Score -->
+                        <div class="fit-score-section">
+                            <div class="fit-score-circle">
+                                <div class="score-number">92%</div>
+                                <div class="score-label">Fit Score</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Job Analysis -->
+                        <div class="analysis-section">
+                            <h4>🎯 Job Analysis</h4>
+                            <div class="key-matches">
+                                <h5>Strong Matches:</h5>
+                                <ul>
+                                    <li>✅ 15+ years design experience</li>
+                                    <li>✅ Design systems expertise</li>
+                                    <li>✅ B2B product design background</li>
+                                    <li>✅ Cross-functional leadership</li>
+                                    <li>✅ Startup experience</li>
+                                </ul>
+                            </div>
+                            <div class="growth-areas">
+                                <h5>Growth Areas:</h5>
+                                <ul>
+                                    <li>⚠️ Limited direct AI/ML product experience</li>
+                                    <li>⚠️ Computer vision domain knowledge</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Company Intelligence -->
+                        <div class="company-section">
+                            <h4>🏢 Company Intelligence</h4>
+                            <div class="company-details">
+                                <div class="detail-row">
+                                    <span class="label">Stage:</span>
+                                    <span class="value">Series A Startup</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Funding:</span>
+                                    <span class="value">$15M (2023)</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Size:</span>
+                                    <span class="value">50-100 employees</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Growth:</span>
+                                    <span class="value">200% YoY</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Culture Insights -->
+                        <div class="culture-section">
+                            <h4>🌟 Culture Insights</h4>
+                            <div class="culture-rating">
+                                <span class="rating">4.2/5 Overall</span>
+                                <span class="rating">4.0/5 Work-Life</span>
+                            </div>
+                            <div class="culture-highlights">
+                                <div class="culture-pro">👍 Innovation-focused</div>
+                                <div class="culture-pro">👍 Smart, collaborative team</div>
+                                <div class="culture-con">👎 Fast-paced pressure</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Application History -->
+                        <div class="history-section">
+                            <h4>📊 Application History</h4>
+                            <div class="history-item">
+                                <div class="job-title">UX Researcher</div>
+                                <div class="status interviewing">Interviewing</div>
+                            </div>
+                            <div class="insight-message">
+                                💡 Already interviewing for UX role - great momentum!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyNow() {
+            alert('🚀 Launching Application Compiler for Coactive AI Senior AI Platform Manager position...\n\nThis would:\n• Generate optimized resume\n• Create tailored cover letter\n• Pre-fill application data\n• Track application in HubSpot');
+        }
+
+        function addToWorklist() {
+            alert('📝 Added to Worklist!\n\nThis would:\n• Add job to your application worklist\n• Create HubSpot task with deadline\n• Set up follow-up reminders\n• Track research progress');
+        }
+
+        function researchCompany() {
+            alert('🔍 Opening Company Research Workspace...\n\nThis would:\n• Deep dive into company data\n• Analyze recent news and funding\n• Review leadership team\n• Explore company culture and values');
+        }
+
+        function checkNetwork() {
+            alert('🤝 Exploring Network Connections...\n\nThis would:\n• Show detailed connection paths\n• Suggest warm introduction strategies\n• Find alumni connections\n• Identify referral opportunities');
+        }
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const stats = document.querySelectorAll('.stat-value');
+            // Randomly update one stat occasionally
+            if (Math.random() < 0.1) {
+                const randomStat = stats[Math.floor(Math.random() * stats.length)];
+                const currentValue = parseInt(randomStat.textContent);
+                if (randomStat.parentElement.textContent.includes('New Jobs')) {
+                    randomStat.textContent = currentValue + 1;
+                }
+            }
+        }, 10000);
+
+        // Follow-up task creation function
+        function createFollowUpTask(contactName, contactRole, contactType) {
+            // This would normally:
+            // 1. Pull job summary from current job data
+            // 2. Enrich contact information (email, phone, recent activity)
+            // 3. Create structured follow-up task in HubSpot or CRM
+            // 4. Generate personalized outreach template
+            
+            const jobTitle = "Senior Product Designer";
+            const companyName = "Coactive AI";
+            
+            alert(`📞 Follow-up Task Created!\n\nContact: ${contactName} (${contactRole})\nConnection: ${contactType}\nJob: ${jobTitle} at ${companyName}\n\nThis would:\n• Create HubSpot task with deadline\n• Pull job summary and key talking points\n• Enrich contact data (email, phone, recent activity)\n• Generate personalized outreach template\n• Set follow-up reminders\n• Track networking progress`);
+        }
+
+        function compileApplication() {
+            alert('📋 Launching Application Compiler for Coactive AI Senior Product Designer position...\n\nThis would:\n• Generate optimized resume\n• Create tailored cover letter\n• Compile portfolio materials\n• Pull in all enriched company data\n• Track application in HubSpot');
+        }
+
+        function addToHubSpot() {
+            alert('🏢 Adding Company to HubSpot!\n\nThis would:\n• Create enriched company record\n• Import all intelligence data\n• Set up tracking and alerts\n• Link to existing contacts\n• Create follow-up workflows');
+        }
+
+        function exploreNetwork() {
+            alert('🤝 Exploring Network Connections...\n\nThis would:\n• Deep dive into LinkedIn connections\n• Find mutual connections and warm introductions\n• Analyze relationship strength\n• Suggest networking strategies\n• Create connection roadmap');
+        }
+    </script>
+</body>
+</html>
