@@ -9,12 +9,19 @@ import urllib.parse
 import json
 import requests
 import os
+import hashlib
+import base64
+import secrets
 from datetime import datetime
 
 PORT = int(os.environ.get('PORT', 8080))
 CANVA_CLIENT_ID = 'OC-AZhcJXJ2NmnL'
 CANVA_CLIENT_SECRET = os.environ.get('CANVA_CLIENT_SECRET', '')
 CALLBACK_URL = 'https://job-automation-production.up.railway.app/canva/callback'
+
+# Global storage for PKCE parameters (in production, use secure session storage)
+stored_code_verifier = None
+stored_state = None
 
 class CanvaOAuthHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -75,14 +82,27 @@ body{font-family:Arial;padding:40px;text-align:center;background:linear-gradient
         self.wfile.write(json.dumps(health_data, indent=2).encode())
     
     def start_oauth_flow(self):
-        # Properly encode OAuth parameters to fix 400 error
+        # Generate PKCE parameters as required by Canva
+        code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8').rstrip('=')
+        code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode('utf-8')).digest()).decode('utf-8').rstrip('=')
+        state = secrets.token_urlsafe(32)
+        
+        # Store code_verifier for token exchange (in production, use secure session storage)
+        global stored_code_verifier, stored_state
+        stored_code_verifier = code_verifier
+        stored_state = state
+        
+        # Properly encode OAuth parameters with PKCE
         encoded_callback = urllib.parse.quote(CALLBACK_URL, safe='')
         scopes = "design:content:read design:content:write design:meta:read"
         encoded_scopes = urllib.parse.quote(scopes, safe='')
         
-        auth_url = f"https://www.canva.com/api/oauth/authorize?client_id={CANVA_CLIENT_ID}&redirect_uri={encoded_callback}&response_type=code&scope={encoded_scopes}"
+        auth_url = f"https://www.canva.com/api/oauth/authorize?code_challenge={code_challenge}&code_challenge_method=S256&scope={encoded_scopes}&response_type=code&client_id={CANVA_CLIENT_ID}&state={state}&redirect_uri={encoded_callback}"
         
-        print(f"🔗 OAuth URL: {auth_url}")
+        print(f"🔗 PKCE OAuth URL: {auth_url}")
+        print(f"🔑 Code verifier: {code_verifier[:20]}...")
+        print(f"🛡️ State: {state[:20]}...")
+        
         self.send_response(302)
         self.send_header('Location', auth_url)
         self.end_headers()
@@ -93,9 +113,11 @@ body{font-family:Arial;padding:40px;text-align:center;background:linear-gradient
         
         code = query.get('code', [None])[0]
         error = query.get('error', [None])[0]
+        state = query.get('state', [None])[0]
         
         print(f"📋 Authorization code: {code}")
         print(f"❌ Error: {error}")
+        print(f"🛡️ State: {state}")
         
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -107,29 +129,63 @@ body{font-family:Arial;padding:40px;text-align:center;background:linear-gradient
 <a href="/canva/auth" style="background:#1976d2;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Try Again</a>
 </body></html>"""
         elif code:
-            try:
-                token_data = {
-                    'grant_type': 'authorization_code',
-                    'client_id': CANVA_CLIENT_ID,
-                    'client_secret': CANVA_CLIENT_SECRET,
-                    'code': code,
-                    'redirect_uri': CALLBACK_URL
-                }
-                response = requests.post('https://api.canva.com/rest/v1/oauth/token', data=token_data)
-                if response.status_code == 200:
-                    token_response = response.json()
-                    access_token = token_response.get('access_token', '')
-                    html = f"""<html><body style="font-family:Arial;padding:40px;text-align:center;">
-<h1 style="color:#4caf50;">✅ OAuth Success!</h1><p>Connected to Canva API</p>
-<p>Token: {access_token[:30]}...</p>
-<div style="background:#e8f5e8;padding:20px;border-radius:8px;margin:20px 0;">
-<strong>�� Integration Working!</strong><br>OAuth flow ready for Canva review.</div>
+            # Validate state parameter for CSRF protection
+            global stored_state, stored_code_verifier
+            if state != stored_state:
+                html = f"""<html><body style="font-family:Arial;padding:40px;text-align:center;">
+<h1 style="color:#d32f2f;">❌ State Mismatch</h1>
+<p>CSRF protection failed. State parameter doesn't match.</p>
+<a href="/canva/auth" style="background:#1976d2;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Try Again</a>
+</body></html>"""
+            else:
+                try:
+                    # Use PKCE for token exchange
+                    token_data = {
+                        'grant_type': 'authorization_code',
+                        'client_id': CANVA_CLIENT_ID,
+                        'client_secret': CANVA_CLIENT_SECRET,
+                        'code': code,
+                        'redirect_uri': CALLBACK_URL,
+                        'code_verifier': stored_code_verifier
+                    }
+                    
+                    print(f"🔑 Using code_verifier: {stored_code_verifier[:20]}...")
+                    response = requests.post('https://api.canva.com/rest/v1/oauth/token', data=token_data)
+                    
+                    if response.status_code == 200:
+                        token_response = response.json()
+                        access_token = token_response.get('access_token', '')
+                        refresh_token = token_response.get('refresh_token', '')
+                        expires_in = token_response.get('expires_in', '')
+                        
+                        html = f"""<html><body style="font-family:Arial;padding:40px;text-align:center;">
+<h1 style="color:#4caf50;">✅ PKCE OAuth Success!</h1>
+<p>Successfully connected to Canva API with PKCE</p>
+<div style="background:#e8f5e8;padding:20px;border-radius:8px;margin:20px 0;text-align:left;">
+<strong>🎉 Token Details:</strong><br>
+• Access Token: {access_token[:30]}...<br>
+• Refresh Token: {refresh_token[:30] if refresh_token else 'None'}...<br>
+• Expires In: {expires_in} seconds<br>
+• PKCE: ✅ Verified
+</div>
+<div style="background:#e3f2fd;padding:20px;border-radius:8px;margin:20px 0;">
+<strong>🚀 Integration Ready!</strong><br>OAuth flow complete and ready for Canva review submission.
+</div>
 <a href="/" style="background:#1976d2;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Home</a>
 </body></html>"""
-                else:
-                    html = f"<html><body><h1>Token Error: {response.status_code}</h1><p>{response.text}</p></body></html>"
-            except Exception as e:
-                html = f"<html><body><h1>Exception: {e}</h1></body></html>"
+                    else:
+                        html = f"""<html><body style="font-family:Arial;padding:40px;text-align:center;">
+<h1 style="color:#d32f2f;">Token Exchange Error: {response.status_code}</h1>
+<div style="background:#ffebee;padding:20px;border-radius:8px;margin:20px 0;text-align:left;">
+<strong>Response:</strong><br>{response.text}
+</div>
+<a href="/canva/auth" style="background:#1976d2;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Try Again</a>
+</body></html>"""
+                except Exception as e:
+                    html = f"""<html><body style="font-family:Arial;padding:40px;text-align:center;">
+<h1 style="color:#d32f2f;">Exception: {e}</h1>
+<a href="/canva/auth" style="background:#1976d2;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Try Again</a>
+</body></html>"""
         else:
             # Show all query parameters for debugging
             query_debug = "<br>".join([f"{k}: {v}" for k, v in query.items()])
