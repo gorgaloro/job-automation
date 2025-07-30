@@ -75,7 +75,14 @@ body{font-family:Arial;padding:40px;text-align:center;background:linear-gradient
         self.wfile.write(json.dumps(health_data, indent=2).encode())
     
     def start_oauth_flow(self):
-        auth_url = f"https://www.canva.com/api/oauth/authorize?client_id={CANVA_CLIENT_ID}&redirect_uri={CALLBACK_URL}&response_type=code&scope=design:content:read design:content:write design:meta:read"
+        # Properly encode OAuth parameters to fix 400 error
+        encoded_callback = urllib.parse.quote(CALLBACK_URL, safe='')
+        scopes = "design:content:read design:content:write design:meta:read"
+        encoded_scopes = urllib.parse.quote(scopes, safe='')
+        
+        auth_url = f"https://www.canva.com/api/oauth/authorize?client_id={CANVA_CLIENT_ID}&redirect_uri={encoded_callback}&response_type=code&scope={encoded_scopes}"
+        
+        print(f"🔗 OAuth URL: {auth_url}")
         self.send_response(302)
         self.send_header('Location', auth_url)
         self.end_headers()
