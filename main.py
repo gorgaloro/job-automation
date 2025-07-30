@@ -14,7 +14,7 @@ from datetime import datetime
 PORT = int(os.environ.get('PORT', 8080))
 CANVA_CLIENT_ID = 'OC-AZhcJXJ2NmnL'
 CANVA_CLIENT_SECRET = os.environ.get('CANVA_CLIENT_SECRET', '')
-CALLBACK_URL = 'https://job-search-automation-production.up.railway.app/canva/callback'
+CALLBACK_URL = 'https://job-automation-production.up.railway.app/canva/callback'
 
 class CanvaOAuthHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
