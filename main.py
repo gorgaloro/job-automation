@@ -88,8 +88,14 @@ body{font-family:Arial;padding:40px;text-align:center;background:linear-gradient
         self.end_headers()
     
     def handle_oauth_callback(self, query):
+        # Debug logging to see what Canva sent
+        print(f"🔍 Callback received with query: {query}")
+        
         code = query.get('code', [None])[0]
         error = query.get('error', [None])[0]
+        
+        print(f"📋 Authorization code: {code}")
+        print(f"❌ Error: {error}")
         
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -125,7 +131,17 @@ body{font-family:Arial;padding:40px;text-align:center;background:linear-gradient
             except Exception as e:
                 html = f"<html><body><h1>Exception: {e}</h1></body></html>"
         else:
-            html = "<html><body><h1>No authorization code</h1></body></html>"
+            # Show all query parameters for debugging
+            query_debug = "<br>".join([f"{k}: {v}" for k, v in query.items()])
+            html = f"""<html><body style="font-family:Arial;padding:40px;text-align:center;">
+<h1>🔍 OAuth Callback Debug</h1>
+<p><strong>No authorization code received</strong></p>
+<div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:20px 0;text-align:left;">
+<h3>Query Parameters:</h3>
+{query_debug if query_debug else "No parameters received"}
+</div>
+<a href="/canva/auth" style="background:#1976d2;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">Try OAuth Again</a>
+</body></html>"""
         
         self.wfile.write(html.encode())
 
