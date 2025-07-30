@@ -490,8 +490,8 @@ class CanvaResumeGenerator:
 
 def create_canva_credentials() -> CanvaCredentials:
     """Create Canva credentials from environment variables"""
-    client_id = os.getenv('CANVA_CLIENT_ID', 'OC-AZhcJXJ2NmnL')
-    client_secret = os.getenv('CANVA_CLIENT_SECRET', 'cnvcaCZxCHF4Bd7Ctox2krAMx9JEHkof41RkBtkSJDuVb_gM00017581')
+    client_id = os.getenv('CANVA_CLIENT_ID')
+    client_secret = os.getenv('CANVA_CLIENT_SECRET')
     
     if not client_id or not client_secret:
         raise ValueError("Canva API credentials not found in environment variables")
