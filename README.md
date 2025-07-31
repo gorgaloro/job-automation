@@ -1,4 +1,5 @@
 # AI Job Search Automation Platform
+
 ## Enterprise-Grade Career Optimization & Application Management System
 
 [![Production Status](https://img.shields.io/badge/Status-Production%20Ready-green)](https://job-automation-production.up.railway.app)
@@ -12,6 +13,7 @@
 A comprehensive AI-powered job search automation platform that transforms the traditional job application process through intelligent resume optimization, dynamic content generation, and multi-source job matching. Built with enterprise-grade architecture and designed for scalability.
 
 **Key Value Propositions:**
+
 - **90% reduction** in resume customization time through AI-driven optimization
 - **3x improvement** in application relevance through dynamic content scoring
 - **Comprehensive integration** with major job boards, ATS systems, and professional networks
@@ -22,6 +24,7 @@ A comprehensive AI-powered job search automation platform that transforms the tr
 ## 🏗️ **System Architecture**
 
 ### **Technology Stack**
+
 - **Backend:** Python 3.9+, FastAPI, Pydantic, AsyncIO
 - **Database:** PostgreSQL (Supabase) with Row Level Security
 - **AI/ML:** OpenAI GPT-4, Custom Scoring Algorithms
@@ -30,6 +33,7 @@ A comprehensive AI-powered job search automation platform that transforms the tr
 - **Integrations:** HubSpot CRM, Indeed API, GitHub API, Canva API
 
 ### **Core Architecture Principles**
+
 - **Microservices Design:** Modular, independently deployable components
 - **API-First Development:** RESTful APIs with comprehensive documentation
 - **Event-Driven Processing:** Asynchronous job processing and notifications
@@ -41,30 +45,35 @@ A comprehensive AI-powered job search automation platform that transforms the tr
 ## 🚀 **Core Features & Capabilities**
 
 ### **1. Dynamic Resume Optimization**
+
 - **AI-Powered Content Scoring:** Bullet-point level relevance analysis
 - **Dynamic Section Management:** Context-aware content selection
 - **Multi-Format Export:** PDF generation via Canva API integration
 - **Version Control:** Template management with baseline protection
 
 ### **2. Intelligent Job Matching**
+
 - **Multi-Source Aggregation:** Indeed, GitHub Jobs, company career pages
 - **Semantic Analysis:** AI-driven job description parsing and matching
 - **Relevance Scoring:** Multi-dimensional candidate-job alignment
 - **Application Tracking:** End-to-end application lifecycle management
 
 ### **3. Company Intelligence & Enrichment**
+
 - **Comprehensive Profiles:** Company data, culture insights, employee sentiment
 - **Integration Ready:** HubSpot CRM synchronization
 - **Market Analysis:** Industry trends and competitive positioning
 - **Decision Support:** Data-driven application prioritization
 
 ### **4. Personal Brand & Career Coaching**
+
 - **AI Career Coach:** Personalized career guidance and strategy
 - **Brand Profiling:** Professional identity optimization
 - **Interview Preparation:** Role-specific preparation and practice
 - **Network Analysis:** LinkedIn integration and relationship mapping
 
 ### **5. Application Compilation & Submission**
+
 - **Multi-Format Support:** Resume, Cover Letter, Portfolio generation
 - **Submission Detection:** Automatic requirement parsing from job postings
 - **Quality Assurance:** Pre-submission validation and optimization
@@ -75,6 +84,7 @@ A comprehensive AI-powered job search automation platform that transforms the tr
 ## 📊 **Technical Highlights**
 
 ### **Advanced AI Integration**
+
 ```python
 # Example: Bullet-point level relevance scoring
 def calculate_bullet_relevance(bullet_point, job_requirements):
@@ -89,12 +99,14 @@ def calculate_bullet_relevance(bullet_point, job_requirements):
 ```
 
 ### **Scalable Database Design**
+
 - **Granular Content Management:** Individual bullet points as database entities
 - **Dynamic Scoring:** Real-time relevance calculation and caching
 - **Audit Trails:** Complete change tracking and version history
 - **Performance Optimization:** Strategic indexing and query optimization
 
 ### **Production-Ready Deployment**
+
 - **Container Orchestration:** Docker-based deployment pipeline
 - **Environment Management:** Secure configuration and secrets handling
 - **Monitoring & Logging:** Comprehensive observability stack
@@ -123,12 +135,16 @@ This platform demonstrates:
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
+
 - Python 3.9+
 - PostgreSQL database (Supabase recommended)
 - OpenAI API key
 - Railway account (for deployment)
 
+ 
+
 ### **Local Development**
+
 ```bash
 # Clone repository
 git clone https://github.com/gorgaloro/job-automation.git
@@ -146,6 +162,7 @@ python src/api/main.py
 ```
 
 ### **Production Deployment**
+
 ```bash
 # Deploy to Railway
 railway login
@@ -158,12 +175,14 @@ railway up
 ## 📚 **Documentation**
 
 ### **Technical Documentation**
+
 - [**API Documentation**](docs/api/) - Comprehensive API reference and examples
 - [**Architecture Guide**](docs/architecture/) - System design and technical decisions
 - [**Database Schema**](docs/database/) - Data models and relationships
 - [**Deployment Guide**](docs/deployment/) - Production deployment instructions
 
 ### **User Guides**
+
 - [**Getting Started**](docs/user-guides/getting-started.md) - Platform overview and setup
 - [**Resume Optimization**](docs/user-guides/resume-optimization.md) - Dynamic resume features
 - [**Job Search Workflow**](docs/user-guides/job-search.md) - End-to-end job search process
@@ -195,18 +214,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This platform represents a comprehensive demonstration of:
 
 ### **Technical Leadership**
+
 - **System Architecture:** Designed scalable, maintainable enterprise systems
 - **Technology Integration:** Successfully integrated 10+ external APIs and services
 - **Performance Optimization:** Implemented efficient algorithms and database designs
 - **Security Implementation:** Applied enterprise security best practices
 
 ### **Project Management**
+
 - **Strategic Planning:** Developed comprehensive project roadmaps and execution plans
 - **Resource Coordination:** Managed complex multi-component development workflows
 - **Quality Assurance:** Implemented comprehensive testing and validation processes
 - **Stakeholder Communication:** Created clear documentation for technical and business audiences
 
 ### **Business Impact**
+
 - **Process Automation:** Reduced manual effort by 90% through intelligent automation
 - **User Experience:** Designed intuitive interfaces for complex business processes
 - **Scalability Planning:** Architected systems for multi-user, enterprise deployment

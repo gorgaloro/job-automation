@@ -5,7 +5,8 @@
 The Job Search Automation Platform provides a comprehensive REST API for managing jobs, companies, resumes, and AI-powered scoring. All endpoints return JSON responses and use standard HTTP status codes.
 
 ## Base URL
-```
+
+```text
 https://api.job-search-automation.com/v1
 ```
 
@@ -25,7 +26,7 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 - **Enterprise**: Custom limits
 
 Rate limit headers are included in all responses:
-```
+```text
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
 X-RateLimit-Reset: 1640995200
@@ -34,11 +35,13 @@ X-RateLimit-Reset: 1640995200
 ## Companies API
 
 ### List Companies
+
 ```http
 GET /companies
 ```
 
 **Parameters:**
+
 - `page` (integer): Page number (default: 1)
 - `limit` (integer): Items per page (default: 20, max: 100)
 - `industry` (string): Filter by industry
@@ -72,6 +75,7 @@ GET /companies
 ```
 
 ### Create Company
+
 ```http
 POST /companies
 ```
@@ -101,6 +105,7 @@ POST /companies
 ```
 
 ### Get Company
+
 ```http
 GET /companies/{id}
 ```
@@ -123,11 +128,13 @@ GET /companies/{id}
 ## Jobs API
 
 ### List Jobs
+
 ```http
 GET /jobs
 ```
 
 **Parameters:**
+
 - `page` (integer): Page number
 - `limit` (integer): Items per page
 - `company_id` (uuid): Filter by company
@@ -169,6 +176,7 @@ GET /jobs
 ```
 
 ### Create Job
+
 ```http
 POST /jobs
 ```
@@ -243,11 +251,13 @@ GET /resumes
 ```
 
 ### Upload Resume
+
 ```http
 POST /resumes
 ```
 
 **Request:** `multipart/form-data`
+
 - `file`: Resume file (PDF, DOCX, or TXT)
 - `version`: Version identifier
 - `tags`: Comma-separated tags
@@ -305,6 +315,7 @@ POST /resumes/{id}/optimize
 ## AI Scoring API
 
 ### Score Resume Against Job
+
 ```http
 POST /scoring/resume-job
 ```
@@ -455,6 +466,7 @@ POST /applications
 ```
 
 ### Update Application Status
+
 ```http
 PATCH /applications/{id}
 ```

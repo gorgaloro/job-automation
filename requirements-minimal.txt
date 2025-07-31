@@ -1,0 +1,27 @@
+# Minimal Requirements - Python 3.13 Compatible
+# Core FastAPI Application
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# AI & ML Integration
+openai==1.3.7
+
+# HTTP & API Integration
+httpx==0.25.2
+requests==2.31.0
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
+
+# Environment & Configuration
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# Web scraping and parsing
+beautifulsoup4==4.12.2
+
+# Development Tools
+pytest==7.4.3
+black==23.11.0
